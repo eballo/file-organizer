@@ -97,6 +97,7 @@ $image-organizer/tests/python -m pytest tests
     * code refactor
     * update readme
     * add tests
+    * Fix bug capitalized extensions
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
