@@ -51,3 +51,5 @@ pythonenv*
 
 # PyCharm
 .idea/
+
+.DS_Store
