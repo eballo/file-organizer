@@ -10,7 +10,7 @@ from PIL import ExifTags, UnidentifiedImageError
 
 class FileProcessor:
 
-    def process(self, images: List[str], destination):
+    def process(self, images: List[str], destination: str):
         self.create_destination(destination)
         self.create_directories(images, destination)
         self.process_in_parallel(images, destination)
@@ -31,7 +31,7 @@ class FileProcessor:
                 if not os.path.isdir(destination + date + os.path.sep + model):
                     self.create_destination(destination + date + os.path.sep + model)
 
-    def get_unique_sorted_dates(self, images: str) -> Set[Tuple[str, str]]:
+    def get_unique_sorted_dates(self, images: List[str]) -> Set[Tuple[str, str]]:
         unique_dates = set()
         for image in images:
             unique_dates.add(self.modification_date(image))
@@ -74,7 +74,7 @@ class FileProcessor:
         model = None
         if exif_raw:
             for tag, value in exif_raw.items():
-                decodedTag = ExifTags.TAGS.get(tag, tag)
-                if field == decodedTag:
+                decoded_tag = ExifTags.TAGS.get(tag, tag)
+                if field == decoded_tag:
                     model = (value.replace(" ", "")).lower()
         return model

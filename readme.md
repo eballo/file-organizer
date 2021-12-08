@@ -30,7 +30,7 @@ Source
 Output
 
 ```shell
-python image-organizer.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
+python reoganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
 [+] Start Processing
 [+] All files were moved successfully!
 ----------------
@@ -61,6 +61,8 @@ To get a local copy up and running follow these simple example steps.
 Install the project dependencies
 
 ```sh
+pyenv virtualenv 3.8.6 image
+pyenv local image
 pip install -r requirements.txt
 ```
 
@@ -78,7 +80,11 @@ optional arguments:
                         the destination path where the images will be ordered
   --types types         the filter types coma separated. Default types: gif, png, jpg, jpeg, mov, mp4
 ```
-
+### Run the tests
+From inside the test directory
+```shell
+$image-organizer/tests/python -m pytest tests
+```
 
 ## Release History
 
@@ -86,7 +92,11 @@ optional arguments:
     * Create directories
     * add exif model information if any
     * copy in parallel 10 threads
-    
+
+* 2.0
+    * code refactor
+    * update readme
+    * add tests
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
