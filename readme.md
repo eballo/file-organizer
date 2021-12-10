@@ -1,4 +1,4 @@
-# Image Organizer
+# File Organizer
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -29,7 +29,6 @@ Source
 
 Output
 
-Default example :
 ```shell
 python reorganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
 [+] Start Processing
@@ -57,6 +56,35 @@ Do you want to continue? yes/no > yes
 └── 2019-12-14
     └── nikond5200
         └── 48e9a3cb-454c-4b57-b17b-a8751ac12938_Original.jpg
+```
+
+## Getting Started
+
+To get a local copy up and running follow these simple example steps.
+
+### Installation
+
+Install the project dependencies
+
+```sh
+pyenv virtualenv 3.8.6 image
+pyenv local image
+pip install -r requirements.txt
+```
+
+### Run
+```sh 
+python reorganize.py --help
+usage: reorganize.py [-h] [--source source] [--destination destination] [--types types]
+
+Image Organizer
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --source source       the path where the images are located
+  --destination destination
+                        the destination path where the images will be ordered
+  --types types         the filter types coma separated. Default types: gif, png, jpg, jpeg, mov, mp4
 ```
 
 Sample with specific extensions
@@ -99,34 +127,7 @@ INFO	 : [-] Output directory already exists
 INFO	 : [+] All files were moved successfully!
 DEBUG	 : [+] Finish
 ```
-## Getting Started
 
-To get a local copy up and running follow these simple example steps.
-
-### Installation
-
-Install the project dependencies
-
-```sh
-pyenv virtualenv 3.8.6 image
-pyenv local image
-pip install -r requirements.txt
-```
-
-### Run
-```sh 
-python reorganize.py --help
-usage: reorganize.py [-h] [--source source] [--destination destination] [--types types]
-
-Image Organizer
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --source source       the path where the images are located
-  --destination destination
-                        the destination path where the images will be ordered
-  --types types         the filter types coma separated. Default types: gif, png, jpg, jpeg, mov, mp4
-```
 ### Run the tests
 From inside the test directory
 ```shell
