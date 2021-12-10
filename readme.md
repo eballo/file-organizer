@@ -30,7 +30,7 @@ Source
 Output
 
 ```shell
-python reoganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
+python reorganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
 [+] Start Processing
 [+] All files were moved successfully!
 ----------------
@@ -68,8 +68,8 @@ pip install -r requirements.txt
 
 ### Run
 ```sh 
-python image-organizer.py --help
-usage: image-organizer.py [-h] [--source source] [--destination destination] [--types types]
+python reorganize.py --help
+usage: reorganize.py [-h] [--source source] [--destination destination] [--types types]
 
 Image Organizer
 
