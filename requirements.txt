@@ -1,2 +1,6 @@
 pillow==8.0.1
+
+# development
 pytest==6.2.5
+black==19.10b0
+flake8==3.7.0

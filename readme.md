@@ -128,6 +128,18 @@ INFO	 : [+] All files were moved successfully!
 DEBUG	 : [+] Finish
 ```
 
+
+### Pre-commit hooks
+
+Please run  `pre-commit install` just once to install the git hooks that allow
+that allow to preform some checks before commiting. That will save us resouces and time
+
+The pre-commit checks that we run are:
+
+ * flake8
+ * utf-8 encoding
+ * correct JSON files
+
 ### Run the tests
 From inside the test directory
 ```shell
