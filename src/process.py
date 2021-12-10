@@ -1,16 +1,20 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Optional
 from shutil import copyfile
 from pathlib import Path
-import PIL.Image
-from PIL import ExifTags, UnidentifiedImageError
+from PIL import Image, ExifTags, UnidentifiedImageError
+from PIL.Image import Exif
+import logging
 
 
 class FileProcessor:
 
-    def process(self, images: List[str], destination):
+    def __init__(self):
+        pass
+
+    def process(self, images: List[str], destination: str):
         self.create_destination(destination)
         self.create_directories(images, destination)
         self.process_in_parallel(images, destination)
@@ -18,9 +22,12 @@ class FileProcessor:
     @staticmethod
     def create_destination(directory_name):
         try:
-            os.mkdir(directory_name)
+            if not os.path.isdir(directory_name):
+                os.mkdir(directory_name)
+            else:
+                logging.info("[-] Output directory already exists")
         except OSError:
-            print("Creation of the directory %s failed" % directory_name)
+            logging.warning("Creation of the directory %s failed" % directory_name)
 
     def create_directories(self, images, destination):
         sorted_dates = self.get_unique_sorted_dates(images)
@@ -31,7 +38,7 @@ class FileProcessor:
                 if not os.path.isdir(destination + date + os.path.sep + model):
                     self.create_destination(destination + date + os.path.sep + model)
 
-    def get_unique_sorted_dates(self, images: str) -> Set[Tuple[str, str]]:
+    def get_unique_sorted_dates(self, images: List[str]) -> Set[Tuple[str, str]]:
         unique_dates = set()
         for image in images:
             unique_dates.add(self.modification_date(image))
@@ -41,16 +48,15 @@ class FileProcessor:
         args = [(image, destination) for image in images]
         with ThreadPoolExecutor(max_workers=10) as executor:
             executor.map(self.move_images, args)
-        print(f"[+] All files were moved successfully! ")
+        logging.info("[+] All files were moved successfully! ")
 
     def move_images(self, args: List[Tuple[str, str]]):
         image, destination = args
         date, model = self.modification_date(image)
+        destination += date + os.path.sep
         if model:
-            dest = destination + date + os.path.sep + model + os.path.sep + Path(image).name
-        else:
-            dest = destination + date + os.path.sep + Path(image).name
-        copyfile(image, dest)
+            destination += model + os.path.sep
+        copyfile(image, destination + Path(image).name)
 
     def modification_date(self, file: str) -> Tuple[str, str]:
         t = os.path.getmtime(file)
@@ -60,21 +66,21 @@ class FileProcessor:
         return date, model
 
     @staticmethod
-    def get_exif(image: str) -> dict:
+    def get_exif(image: str) -> Optional[Exif]:
         exif_raw = None
         try:
-            img = PIL.Image.open(image)
-            exif_raw = img._getexif()
+            img = Image.open(image)
+            exif_raw = img.getexif()
         except UnidentifiedImageError:
             pass
         return exif_raw
 
     @staticmethod
-    def get_data(exif_raw: dict, field: str) -> str:
+    def get_data(exif_raw: Optional[Exif], field: str) -> str:
         model = None
         if exif_raw:
             for tag, value in exif_raw.items():
-                decodedTag = ExifTags.TAGS.get(tag, tag)
-                if field == decodedTag:
+                decoded_tag = ExifTags.TAGS.get(tag, tag)
+                if field == decoded_tag:
                     model = (value.replace(" ", "")).lower()
         return model

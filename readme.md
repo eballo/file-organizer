@@ -1,4 +1,4 @@
-# Image Organizer
+# File Organizer
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -30,14 +30,20 @@ Source
 Output
 
 ```shell
-python image-organizer.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
+python reorganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
 [+] Start Processing
+
+------------------------
+  Files Report
+------------------------
+ Extensions to be processed : ('.gif', '.png', '.jpg', '.jpeg', '.mov', '.mp4')
+ Files found : 4 / 4
+
+ Missing files   : 0 / 0
+ Missed files have the following extensions: -
+
+Do you want to continue? yes/no > yes
 [+] All files were moved successfully!
-----------------
- Summary Report
-----------------
- Processed files : 4/4
- Missing files   : 0/4
  
 ~/Desktop/out > tree
 .
@@ -61,13 +67,15 @@ To get a local copy up and running follow these simple example steps.
 Install the project dependencies
 
 ```sh
+pyenv virtualenv 3.8.6 image
+pyenv local image
 pip install -r requirements.txt
 ```
 
 ### Run
 ```sh 
-python image-organizer.py --help
-usage: image-organizer.py [-h] [--source source] [--destination destination] [--types types]
+python reorganize.py --help
+usage: reorganize.py [-h] [--source source] [--destination destination] [--types types]
 
 Image Organizer
 
@@ -79,6 +87,64 @@ optional arguments:
   --types types         the filter types coma separated. Default types: gif, png, jpg, jpeg, mov, mp4
 ```
 
+Sample with specific extensions
+```shell
+python reorganize.py --source ~/Desktop/Media --destination ~/Desktop/out/ --extensions opus,jpg,mp3
+[+] Start Processing
+
+------------------------
+  Files Report
+------------------------
+ Extensions to be processed : ('.opus', '.jpg', '.mp3')
+ Files found : 2735 / 3369
+
+ Missing files   : 634 / 3369
+ Missed files have the following extensions: {'.webp', '.pdf', '.aac', '.', '.jpeg', '.mp4', '.m4a'}
+
+Do you want to continue? yes/no > yes
+[+] All files were moved successfully!
+```
+Debug sample:
+```shell
+python reorganize.py --source ~/Desktop/Media --destination ~/Desktop/out/ --debug
+WARNING	 : [-] The destination path specified already exist
+Do you want to continue? yes/no > yes
+DEBUG	 : [+] Parameters: source= /Users/eballo/Desktop/Media/, destination= /Users/eballo/Desktop/out/, extennsions= None, debug= True
+DEBUG	 : [+] Starting
+INFO	 : [+] Start Processing
+INFO	 :
+INFO	 : ------------------------
+INFO	 :   Files Report
+INFO	 : ------------------------
+INFO	 :  Extensions to be processed : ('.gif', '.png', '.jpg', '.jpeg', '.mov', '.mp4')
+INFO	 :  Files found : 1935 / 3369
+INFO	 :
+INFO	 :  Missing files   : 1434 / 3369
+INFO	 :  Missed files have the following extensions: {'.', '.aac', '.pdf', '.m4a', '.webp', '.mp3', '.opus'}
+INFO	 :
+Do you want to continue? yes/no > yes
+INFO	 : [-] Output directory already exists
+INFO	 : [+] All files were moved successfully!
+DEBUG	 : [+] Finish
+```
+
+
+### Pre-commit hooks
+
+Please run  `pre-commit install` just once to install the git hooks that allow
+that allow to preform some checks before commiting. That will save us resouces and time
+
+The pre-commit checks that we run are:
+
+ * flake8
+ * utf-8 encoding
+ * correct JSON files
+
+### Run the tests
+From inside the test directory
+```shell
+$image-organizer/tests/python -m pytest tests
+```
 
 ## Release History
 
@@ -86,7 +152,17 @@ optional arguments:
     * Create directories
     * add exif model information if any
     * copy in parallel 10 threads
-    
+
+* 2.0
+    * code refactor
+    * update readme
+    * add tests
+    * Fix bug capitalized extensions
+    * Fix EXIF information issue (omotto)
+    * Add Logging
+    * Fix when source os separator missing, recursive not working
+    * Add Debug parameter, Info by default
+    * Add Missing files format summary (Debug)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

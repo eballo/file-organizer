@@ -1,0 +1,12 @@
+- repo: https://github.com/ambv/black
+  rev: stable
+  hooks:
+    - id: black
+      language_version: python3.8
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  rev: v1.2.3
+  hooks:
+    - id: flake8
+      language_version: python3.8
+    - id: end-of-file-fixer
+    - id: check-json
