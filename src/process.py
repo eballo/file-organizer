@@ -4,11 +4,13 @@ from datetime import datetime
 from typing import List, Tuple, Set
 from shutil import copyfile
 from pathlib import Path
-import PIL.Image
-from PIL import ExifTags, UnidentifiedImageError
+from PIL import Image, ExifTags, UnidentifiedImageError
 
 
 class FileProcessor:
+
+    def __init__(self):
+        pass
 
     def process(self, images: List[str], destination: str):
         self.create_destination(destination)
@@ -46,11 +48,10 @@ class FileProcessor:
     def move_images(self, args: List[Tuple[str, str]]):
         image, destination = args
         date, model = self.modification_date(image)
+        destination += date + os.path.sep
         if model:
-            dest = destination + date + os.path.sep + model + os.path.sep + Path(image).name
-        else:
-            dest = destination + date + os.path.sep + Path(image).name
-        copyfile(image, dest)
+            destination += model + os.path.sep
+        copyfile(image, destination + Path(image).name)
 
     def modification_date(self, file: str) -> Tuple[str, str]:
         t = os.path.getmtime(file)
@@ -63,8 +64,8 @@ class FileProcessor:
     def get_exif(image: str) -> dict:
         exif_raw = None
         try:
-            img = PIL.Image.open(image)
-            exif_raw = img._getexif()
+            img = Image.open(image)
+            exif_raw = img.getexif()
         except UnidentifiedImageError:
             pass
         return exif_raw
