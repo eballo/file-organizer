@@ -6,43 +6,32 @@ from src.constants import DEFAULT_EXTENSION
 from src.process import FileProcessor
 import logging
 
-from src.utils import do_you_want_to_continue
+import src.utils
 
 
 class FileOrganizer:
     def __init__(
-        self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
-    ):
+            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
+    ) -> object:
         self.file_process = FileProcessor()
         self.source = source
         self.destination = destination
         self.extensions = extensions if extensions else DEFAULT_EXTENSION
 
     @staticmethod
-    def get_all_files(
-        source: str,
-    ) -> List[str]:
-        matches = []
+    def get_files(source: str, extensions: Tuple[str]):
+        all_files = []
+        processed_files = []
+        we = src.utils.WaitingEffect(" |- Searching files...")
         for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
-            matches.append(filename.lower())
-        return matches
-
-    @staticmethod
-    def get_list_of_files_to_be_processed(
-        source: str, extensions: Tuple[str]
-    ) -> List[str]:
-        matches = []
-        for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
+            we.run()
+            all_files.append(filename.lower())
             base, ext = os.path.splitext(filename)
             if ext.lower() in extensions:
-                matches.append(filename.lower())
-        return matches
-
-    @staticmethod
-    def get_list_missing_files(
-        all_files: List[str], processed_files: List[str]
-    ) -> List[str]:
-        return [x for x in all_files if x not in processed_files]
+                processed_files.append(filename.lower())
+        we.run(end=True)
+        missing_files = [x for x in all_files if x not in processed_files]
+        return [all_files, processed_files, missing_files]
 
     @staticmethod
     def get_unique_extensions(files: List[str]) -> Set[str]:
@@ -56,19 +45,15 @@ class FileOrganizer:
     def start(self):
         if self.source and self.destination:
             logging.info("[+] Start Processing")
-            all_files = self.get_all_files(self.source)
-            list_of_files_to_be_processed = self.get_list_of_files_to_be_processed(
-                self.source, self.extensions
-            )
-            missing = self.get_list_missing_files(
-                all_files, list_of_files_to_be_processed
-            )
-
+            files = self.get_files(self.source, self.extensions)
+            all_files = files[0]
+            list_of_files_to_be_processed = files[1]
+            missing = files[2]
             if list_of_files_to_be_processed:
                 self.reporting_summary(
                     all_files, list_of_files_to_be_processed, missing
                 )
-                do_you_want_to_continue()
+                src.utils.do_you_want_to_continue()
                 self.file_process.process(
                     list_of_files_to_be_processed, self.destination
                 )

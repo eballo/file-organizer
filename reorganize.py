@@ -59,11 +59,16 @@ def init_logger(level):
 if __name__ == '__main__':
     source, destination, extensions, debug = get_arguments()
     init_logger(debug)
-    logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination, extensions, debug)
+    logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination,
+                  extensions, debug)
     image_organizer = FileOrganizer(source, destination, extensions)
     try:
         logging.debug("[+] Starting")
         image_organizer.start()
-    except Exception:
-        logging.error("[-] Something went really wrong")
+    except Exception as err:
+        if debug == logging.DEBUG:
+            error_msg = f"Unexpected {err=}, {type(err)=}"
+        else:
+            error_msg = "[-] Something went really wrong"
+        logging.error(error_msg)
     logging.debug("[+] Finish")
