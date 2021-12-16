@@ -168,11 +168,11 @@ $image-organizer/tests/python -m pytest tests
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [python-shield]: https://img.shields.io/badge/python-3.8-blue.svg
 [python-url]: https://www.python.org/downloads/release/python-370/
-[contributors-shield]: https://img.shields.io/github/contributors/eballo/snake-pygame.svg?style=flat-square
-[contributors-url]: https://github.com/eballo/snake-pygame/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/eballo/snake-pygame.svg?style=flat-square
-[forks-url]: https://github.com/eballo/snake-pygame/network/members
-[stars-shield]: https://img.shields.io/github/stars/eballo/snake-pygame.svg?style=flat-square
-[stars-url]: https://github.com/eballo/snake-pygame/stargazers
-[issues-shield]: https://img.shields.io/github/issues/eballo/snake-pygame.svg?style=flat-square
-[issues-url]: https://github.com/eballo/snake-pygame/issues
+[contributors-shield]: https://img.shields.io/github/contributors/eballo/file-organizer.svg?style=flat-square
+[contributors-url]: https://github.com/eballo/file-organizer/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/eballo/file-organizer.svg?style=flat-square
+[forks-url]: https://github.com/eballo/file-organizer/network/members
+[stars-shield]: https://img.shields.io/github/stars/eballo/file-organizer.svg?style=flat-square
+[stars-url]: https://github.com/eballo/file-organizer/stargazers
+[issues-shield]: https://img.shields.io/github/issues/eballo/file-organizer.svg?style=flat-square
+[issues-url]: https://github.com/eballo/file-organizer/issues
