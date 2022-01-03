@@ -5,31 +5,42 @@ from typing import Tuple, List, Union, Any, Set
 from src.constants import DEFAULT_EXTENSION
 from src.process import FileProcessor
 import logging
-
 import src.utils
+import src.mtp_windows
 
 
 class FileOrganizer:
     def __init__(
-            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
+            self, is_mtp: bool, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
     ) -> object:
-        self.file_process = FileProcessor()
+        self.file_process = FileProcessor(is_mtp)
         self.source = source
         self.destination = destination
         self.extensions = extensions if extensions else DEFAULT_EXTENSION
+        self.is_mtp = is_mtp
 
     @staticmethod
-    def get_files(source: str, extensions: Tuple[str]):
+    def get_files(is_mtp: bool, source: str, extensions: Tuple[str]):
         all_files = []
         processed_files = []
         we = src.utils.WaitingEffect(" |- Searching files...")
-        for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
-            we.run()
-            all_files.append(filename.lower())
-            base, ext = os.path.splitext(filename)
-            if ext.lower() in extensions:
-                processed_files.append(filename.lower())
-        we.run(end=True)
+        if not is_mtp:
+            for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
+                we.run()
+                all_files.append(filename.lower())
+                base, ext = os.path.splitext(filename)
+                if ext.lower() in extensions:
+                    processed_files.append(filename.lower())
+            we.run(end=True)
+        else:
+            # Searching recursively
+            all_files = src.mtp_windows.get_sub_files(source)
+            for filename in all_files:
+                we.run()
+                extension = os.path.splitext(filename)[1].lower()
+                if extension in extensions:
+                    processed_files.append(filename)
+            we.run(end=True)
         missing_files = [x for x in all_files if x not in processed_files]
         return [all_files, processed_files, missing_files]
 
@@ -45,7 +56,7 @@ class FileOrganizer:
     def start(self):
         if self.source and self.destination:
             logging.info("[+] Start Processing")
-            files = self.get_files(self.source, self.extensions)
+            files = self.get_files(self.is_mtp, self.source, self.extensions)
             all_files = files[0]
             list_of_files_to_be_processed = files[1]
             missing = files[2]
@@ -54,10 +65,7 @@ class FileOrganizer:
                     all_files, list_of_files_to_be_processed, missing
                 )
                 src.utils.do_you_want_to_continue()
-                self.file_process.process(
-                    list_of_files_to_be_processed, self.destination
-                )
-
+                self.file_process.process(list_of_files_to_be_processed, self.destination)
             else:
                 logging.info("[-] No files found that matches the types")
 

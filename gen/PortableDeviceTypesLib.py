@@ -1,0 +1,4 @@
+import _2B00BA2F_E750_4BEB_9235_97142EDE1D3E_0_1_0
+
+globals().update(_2B00BA2F_E750_4BEB_9235_97142EDE1D3E_0_1_0.__dict__)
+__name__ = 'PortableDeviceTypesLib'
