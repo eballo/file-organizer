@@ -14,6 +14,6 @@ class FileOrganizerTest(unittest.TestCase):
         self.organizer = FileOrganizer(self.source, None, self.extensions)
 
     def test_get_files(self):
-        files = self.organizer.get_files(self.source, self.extensions)
+        files = self.organizer.get_files(False, self.source, self.extensions)
         assert len(files[0]) == 3
         assert len(files[1]) == 1
