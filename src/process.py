@@ -10,8 +10,6 @@ from PIL.Image import Exif
 import logging
 from tqdm import tqdm
 
-import src.mtp_windows
-
 
 class FileProcessor:
 
@@ -80,6 +78,8 @@ class FileProcessor:
         if not self.is_mtp:
             copyfile(image, destination + Path(image).name)
         else:
+            import src.mtp_windows
+
             cont = src.mtp_windows.get_content_from_device_path(image)
             target_file = open(destination + cont.getName(), "wb")
             cont.downloadStream(target_file)
@@ -95,6 +95,8 @@ class FileProcessor:
             exif_raw = self.get_exif(file)
         else:
             try:
+                import src.mtp_windows
+
                 cont = src.mtp_windows.get_content_from_device_path(file)
                 buffer = cont.read_data()
                 byte_imge_io = io.BytesIO(buffer)

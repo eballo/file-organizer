@@ -5,8 +5,8 @@ from typing import Tuple, List, Union, Any, Set
 from src.constants import DEFAULT_EXTENSION
 from src.process import FileProcessor
 import logging
-import src.utils
-import src.mtp_windows
+
+from src.utils import WaitingEffect, do_you_want_to_continue
 
 
 class FileOrganizer:
@@ -23,7 +23,7 @@ class FileOrganizer:
     def get_files(is_mtp: bool, source: str, extensions: Tuple[str]):
         all_files = []
         processed_files = []
-        we = src.utils.WaitingEffect(" |- Searching files...")
+        we = WaitingEffect(" |- Searching files...")
         if not is_mtp:
             for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
                 we.run()
@@ -33,8 +33,11 @@ class FileOrganizer:
                     processed_files.append(filename.lower())
             we.run(end=True)
         else:
+
+            from src.mtp_windows import get_sub_files
+
             # Searching recursively
-            all_files = src.mtp_windows.get_sub_files(source)
+            all_files = get_sub_files(source)
             for filename in all_files:
                 we.run()
                 extension = os.path.splitext(filename)[1].lower()
@@ -64,7 +67,7 @@ class FileOrganizer:
                 self.reporting_summary(
                     all_files, list_of_files_to_be_processed, missing
                 )
-                src.utils.do_you_want_to_continue()
+                do_you_want_to_continue()
                 self.file_process.process(list_of_files_to_be_processed, self.destination)
             else:
                 logging.info("[-] No files found that matches the types")
