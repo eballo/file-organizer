@@ -6,4 +6,6 @@ black==19.10b0
 flake8==3.7.0
 tqdm==4.62.3
 comtypes==1.1.10
+coverage==7.5.3
+
 
