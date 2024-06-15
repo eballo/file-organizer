@@ -13,8 +13,7 @@ class FileOrganizerTest(unittest.TestCase):
         self.source = os.path.abspath(simp_path)
         self.destination = os.path.abspath('tests/fixtures/destination/')
         self.extensions = DEFAULT_EXTENSION
-        self.organizer = FileOrganizer(False, self.source, self.destination, self.extensions)
-        self.mtp_source = 'mtp_source'
+        self.organizer = FileOrganizer(self.source, self.destination, self.extensions)
 
     @patch('src.organizer.glob.iglob')
     def test_get_files_local(self, mock_iglob):
@@ -24,7 +23,7 @@ class FileOrganizerTest(unittest.TestCase):
             os.path.join(self.source, 'file3.jpg')
         ]
 
-        files = self.organizer.get_files(False, self.source, self.extensions)
+        files = self.organizer.get_files(self.source, self.extensions)
 
         self.assertEqual(len(files[0]), 3)  # all files
         self.assertEqual(len(files[1]), 1)  # processed files
@@ -89,4 +88,3 @@ class FileOrganizerTest(unittest.TestCase):
 
         mock_get_files.assert_called_once()
         mock_logging_info.assert_called_with("[-] No files found that matches the types")
-

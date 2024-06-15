@@ -13,12 +13,10 @@ from tqdm import tqdm
 
 class FileProcessor:
 
-    def __init__(self, is_mtp: bool = False):
+    def __init__(self):
         self.progress_bar_reading = None
         self.progress_bar_directories = None
         self.progress_bar_files = None
-        self.is_mtp = is_mtp
-        pass
 
     def process(self, images: List[str], destination: str):
         self.create_destination(destination)
@@ -75,42 +73,24 @@ class FileProcessor:
         destination += date + os.path.sep
         if model:
             destination += model + os.path.sep
-        if not self.is_mtp:
-            copyfile(image, destination + Path(image).name)
-        else:
-            import src.mtp_windows
 
-            cont = src.mtp_windows.get_content_from_device_path(image)
-            target_file = open(destination + cont.getName(), "wb")
-            cont.downloadStream(target_file)
-            target_file.close()
+        self._copy_file(image, destination)
         self.progress_bar_files.update()
 
-    def modification_date(self, file: str) -> Tuple[str, str]:
-        exif_raw = None
-        date = datetime.today()
-        if not self.is_mtp:
-            t = os.path.getmtime(file)
-            date = datetime.fromtimestamp(t)
-            exif_raw = self.get_exif(file)
-        else:
-            try:
-                import src.mtp_windows
+    def _copy_file(self, image, destination):
+        copyfile(image, destination + Path(image).name)
 
-                cont = src.mtp_windows.get_content_from_device_path(file)
-                buffer = cont.read_data()
-                byte_imge_io = io.BytesIO(buffer)
-                byte_imge_io.seek(0)
-                byte_image = byte_imge_io.read()
-                img = Image.open(io.BytesIO(byte_image))
-                exif_raw = img.getexif()
-                date = cont.getDate()
-            except Exception as e:
-                logging.error(e)
-                pass
+    def modification_date(self, file: str) -> Tuple[str, str]:
+        exif_raw, date = self._modify_date(file)
         model = self.get_data(exif_raw, "Model")
         date = str(date.year) + '-' + str(date.month).zfill(2) + '-' + str(date.day).zfill(2)
         return date, model
+
+    def _modify_date(self, file):
+        t = os.path.getmtime(file)
+        date = datetime.fromtimestamp(t)
+        exif_raw = self.get_exif(file)
+        return exif_raw, date
 
     @staticmethod
     def get_exif(image: str) -> Optional[Exif]:
@@ -131,3 +111,35 @@ class FileProcessor:
                 if field == decoded_tag:
                     model = (value.replace(" ", "")).lower()
         return model
+
+
+class FileProcessorWin32(FileProcessor):
+    """
+    This class holds the specific logic needed for win32
+    """
+
+    def _copy_file(self, image, destination):
+        import src.mtp_windows
+
+        cont = src.mtp_windows.get_content_from_device_path(image)
+        target_file = open(destination + cont.getName(), "wb")
+        cont.downloadStream(target_file)
+        target_file.close()
+
+    def _modify_date(self, file):
+        exif_raw = None
+        date = datetime.today()
+        try:
+            import src.mtp_windows
+
+            cont = src.mtp_windows.get_content_from_device_path(file)
+            buffer = cont.read_data()
+            byte_imge_io = io.BytesIO(buffer)
+            byte_imge_io.seek(0)
+            byte_image = byte_imge_io.read()
+            img = Image.open(io.BytesIO(byte_image))
+            exif_raw = img.getexif()
+            date = cont.getDate()
+        except Exception as e:
+            logging.error(e)
+        return exif_raw, date

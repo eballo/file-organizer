@@ -5,9 +5,9 @@ import os
 import sys
 from typing import Tuple, Union, Any
 
-from src.organizer import FileOrganizer
+from src.organizer import FileOrganizer, FileOrganizerWin32
 from src.utils import do_you_want_to_continue
-import src.mtp_windows
+
 
 
 def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
@@ -25,7 +25,7 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
     init_logger(args.loglevel)
 
     extensions: Tuple[Union[str, Any], ...] = None
-    is_mtp = False
+    is_mtp: bool = False
     app_source = args.source
     if app_source:
         if not app_source.endswith(os.path.sep):
@@ -35,6 +35,8 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
             sys.exit()
     else:
         if any(platform.win32_ver()):
+            import src.mtp_windows
+
             logging.info(' |- Running under windows ')
             logging.info(" |- Select MTP device...")
             devices = []
@@ -89,13 +91,20 @@ def init_logger(level):
     logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
+def get_file_organizer(is_w32: bool, src: str, dest: str, ext: Tuple[Union[str, Any], ...]) -> FileOrganizer:
+    if is_w32:
+        return FileOrganizerWin32(src, dest, ext)
+    else:
+        return FileOrganizer(src, dest, ext)
+
+
 if __name__ == '__main__':
     is_mtp, source, destination, extensions, debug = get_arguments()
 
     init_logger(debug)
     logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination,
                   extensions, debug)
-    image_organizer = FileOrganizer(is_mtp, source, destination, extensions)
+    image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
     #try:
     logging.debug("[+] Starting")
     image_organizer.start()

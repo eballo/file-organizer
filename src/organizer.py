@@ -3,7 +3,7 @@ import os
 from typing import Tuple, List, Union, Any, Set
 
 from src.constants import DEFAULT_EXTENSION
-from src.process import FileProcessor
+from src.process import FileProcessor, FileProcessorWin32
 import logging
 
 from src.utils import WaitingEffect, do_you_want_to_continue
@@ -11,41 +11,31 @@ from src.utils import WaitingEffect, do_you_want_to_continue
 
 class FileOrganizer:
     def __init__(
-            self, is_mtp: bool, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
-    ) -> object:
-        self.file_process = FileProcessor(is_mtp)
+            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
+    ):
+        self.file_process = FileProcessor()
         self.source = source
         self.destination = destination
         self.extensions = extensions if extensions else DEFAULT_EXTENSION
-        self.is_mtp = is_mtp
 
-    @staticmethod
-    def get_files(is_mtp: bool, source: str, extensions: Tuple[str]):
+    def get_files(self, source: str, extensions: Tuple[str]):
+        all_files, processed_files = self._filter_files(source, extensions)
+        missing_files = [x for x in all_files if x not in processed_files]
+
+        return [all_files, processed_files, missing_files]
+
+    def _filter_files(self, source: str, extensions: Tuple[str]) -> Tuple[List[str], List[str]]:
         all_files = []
         processed_files = []
         we = WaitingEffect(" |- Searching files...")
-        if not is_mtp:
-            for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
-                we.run()
-                all_files.append(filename.lower())
-                base, ext = os.path.splitext(filename)
-                if ext.lower() in extensions:
-                    processed_files.append(filename.lower())
-            we.run(end=True)
-        else:
-
-            from src.mtp_windows import get_sub_files
-
-            # Searching recursively
-            all_files = get_sub_files(source)
-            for filename in all_files:
-                we.run()
-                extension = os.path.splitext(filename)[1].lower()
-                if extension in extensions:
-                    processed_files.append(filename)
-            we.run(end=True)
-        missing_files = [x for x in all_files if x not in processed_files]
-        return [all_files, processed_files, missing_files]
+        for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
+            we.run()
+            all_files.append(filename.lower())
+            base, ext = os.path.splitext(filename)
+            if ext.lower() in extensions:
+                processed_files.append(filename.lower())
+        we.run(end=True)
+        return all_files, processed_files
 
     @staticmethod
     def get_unique_extensions(files: List[str]) -> Set[str]:
@@ -59,7 +49,7 @@ class FileOrganizer:
     def start(self):
         if self.source and self.destination:
             logging.info("[+] Start Processing")
-            files = self.get_files(self.is_mtp, self.source, self.extensions)
+            files = self.get_files(self.source, self.extensions)
             all_files = files[0]
             list_of_files_to_be_processed = files[1]
             missing = files[2]
@@ -86,3 +76,27 @@ class FileOrganizer:
             self.get_unique_extensions(missing),
         )
         logging.info(" ")
+
+
+class FileOrganizerWin32(FileOrganizer):
+
+    def __init__(
+            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
+    ):
+        super().__init__(source, destination, extensions)
+        self.file_process = FileProcessorWin32()
+
+    def _filter_files(self, source: str, extensions: Tuple[str]) -> Tuple[List[str], List[str]]:
+        from src.mtp_windows import get_sub_files
+
+        processed_files = []
+        we = WaitingEffect(" |- Searching files...")
+        # Searching recursively
+        all_files = get_sub_files(source)
+        for filename in all_files:
+            we.run()
+            extension = os.path.splitext(filename)[1].lower()
+            if extension in extensions:
+                processed_files.append(filename)
+        we.run(end=True)
+        return all_files, processed_files
