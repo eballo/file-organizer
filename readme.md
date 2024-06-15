@@ -1,5 +1,7 @@
 # File Organizer
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eballo_file_organizer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eballo_file_organizer)
+
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
