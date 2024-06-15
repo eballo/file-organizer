@@ -9,9 +9,7 @@ from src.organizer import FileOrganizer, FileOrganizerWin32
 from src.utils import do_you_want_to_continue
 
 
-
 def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
-
     parser = argparse.ArgumentParser(description='Image Organizer')
     parser.add_argument('--source', metavar='source', type=str, help='the path where the images are located')
     parser.add_argument('--destination', metavar='destination', type=str,
@@ -45,7 +43,7 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
                 devices.append(device.getDescription())
             if len(devices) > 0:
                 try:
-                    idx_device = int(input("Please enter device number [0..%d] ..: " % (len(devices)-1)))
+                    idx_device = int(input("Please enter device number [0..%d] ..: " % (len(devices) - 1)))
                 except Exception:
                     logging.warning('[-] Invalid value')
                     sys.exit()
@@ -87,7 +85,7 @@ def init_logger(level):
         logging.basicConfig(format='%(levelname)s\t : %(message)s', level=level)
     else:
         logging.basicConfig(format='%(message)s', level=level)
-    # Force PIL to warning level always
+    # Force PIL to warn level always
     logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
@@ -101,17 +99,17 @@ def get_file_organizer(is_w32: bool, src: str, dest: str, ext: Tuple[Union[str, 
 if __name__ == '__main__':
     is_mtp, source, destination, extensions, debug = get_arguments()
 
-    init_logger(debug)
-    logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination,
-                  extensions, debug)
-    image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
-    #try:
-    logging.debug("[+] Starting")
-    image_organizer.start()
-    #except Exception as err:
-    #    if debug == logging.DEBUG:
-    #        error_msg = f"Unexpected {err=}, {type(err)=}"
-    #    else:
-    #        error_msg = "[-] Something went really wrong"
-    #    logging.error(error_msg)
+    try:
+        init_logger(debug)
+        logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination,
+                      extensions, debug)
+        image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
+        logging.debug("[+] Starting")
+        image_organizer.start()
+    except Exception as err:
+        if debug == logging.DEBUG:
+            error_msg = f"Unexpected {err=}, {type(err)=}"
+        else:
+            error_msg = "[-] Something went really wrong"
+        logging.error(error_msg)
     logging.debug("[+] Finish")

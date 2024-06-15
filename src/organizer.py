@@ -10,15 +10,17 @@ from src.utils import WaitingEffect, do_you_want_to_continue
 
 
 class FileOrganizer:
-    def __init__(
-            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
-    ):
-        self.file_process = FileProcessor()
+    def __init__(self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]):
+        self.file_process = self.get_file_processor()
         self.source = source
         self.destination = destination
         self.extensions = extensions if extensions else DEFAULT_EXTENSION
 
-    def get_files(self, source: str, extensions: Tuple[str]):
+    @staticmethod
+    def get_file_processor():
+        return FileProcessor()
+
+    def get_files(self, source: str, extensions: Tuple[str]) -> List[List[str]]:
         all_files, processed_files = self._filter_files(source, extensions)
         missing_files = [x for x in all_files if x not in processed_files]
 
@@ -54,9 +56,7 @@ class FileOrganizer:
             list_of_files_to_be_processed = files[1]
             missing = files[2]
             if list_of_files_to_be_processed:
-                self.reporting_summary(
-                    all_files, list_of_files_to_be_processed, missing
-                )
+                self.reporting_summary(all_files, list_of_files_to_be_processed, missing)
                 do_you_want_to_continue()
                 self.file_process.process(list_of_files_to_be_processed, self.destination)
             else:
@@ -80,11 +80,9 @@ class FileOrganizer:
 
 class FileOrganizerWin32(FileOrganizer):
 
-    def __init__(
-            self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]
-    ):
-        super().__init__(source, destination, extensions)
-        self.file_process = FileProcessorWin32()
+    @staticmethod
+    def get_file_processor():
+        return FileProcessorWin32()
 
     def _filter_files(self, source: str, extensions: Tuple[str]) -> Tuple[List[str], List[str]]:
         from src.mtp_windows import get_sub_files

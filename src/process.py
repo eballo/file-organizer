@@ -42,7 +42,7 @@ class FileProcessor:
         except OSError:
             logging.warning("Creation of the directory %s failed" % directory_name)
 
-    def create_directories(self, sorted_dates, destination):
+    def create_directories(self, sorted_dates, destination: str) -> None:
         for date, model in sorted_dates:
             if not os.path.isdir(destination + date):
                 self.create_destination(destination + date)
