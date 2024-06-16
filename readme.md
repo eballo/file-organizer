@@ -1,6 +1,6 @@
 # File Organizer
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=eballo_file_organizer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=eballo_file_organizer)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bluecodex_file-organizer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bluecodex_file-organizer)
 
 <!-- PROJECT SHIELDS -->
 <!--
