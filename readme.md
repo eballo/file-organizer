@@ -1,4 +1,4 @@
-# File Organizer
+# Multimedia Organizer Tool
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bluecodex_file-organizer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bluecodex_file-organizer)
 
@@ -16,48 +16,88 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 
-The goal of this project is to organize all the multimedia files from a given folder.
-The output will be a folder (YYYY-MM-DD format), and all media data that belongs to that date inside.
+The Multimedia Organizer Tool is designed to streamline and automate the organization of multimedia files within a 
+specified folder. This powerful utility processes all files in a given source directory, identifies their modification 
+dates, and systematically sorts them into subfolders within a designated destination directory. Each subfolder is named 
+according to the date format YYYY-MM-DD, corresponding to the modification date of the files it contains. 
 
-Source
+This tool ensures that all media files are neatly organized by date, making it easier to manage and locate them.
+
+### Key Features:
+
+* Automatic Sorting: Efficiently processes and sorts multimedia files by their modification date.
+* Date-Based Folders: Creates subfolders in the destination directory named after the modification date in YYYY-MM-DD format.
+* Comprehensive File Support: Supports a wide range of multimedia files, including images, videos, and audio files.
+* User-Friendly: Simple and easy to use, with minimal setup required.
+
+## Usage:
+
+1) Prepare your directories:
+   * Ensure you have a source directory containing your multimedia files.
+   * Create or specify a destination directory where the organized files will be stored.
+   
+
+2) Run the tool:
+    ```shell
+    python organize_media.py --source /path/to/source/directory --destination /path/to/destination/directory
+    ```
+
+    Replace `/path/to/source/directory` with the path to your source directory and `/path/to/destination/directory` with 
+    the path to your destination directory.
+
+
+3) Example command:
+    ```shell
+    python organize_media.py --source /home/user/photos --destination /home/user/organized_photos
+    ```
+    This command will process all multimedia files in `/home/user/photos`, identify their modification dates, and 
+    organize them into date-based subfolders in `/home/user/organized_photos`.
+
+### Example:
+
+Given the source directory
 ```shell
- ~/Desktop/test > tree
+ ~/Desktop/test  tree                                                                                                                                   ok | 15:53:04
 .
-├── 48e9a3cb-454c-4b57-b17b-a8751ac12938_Original.jpg
-├── IMG-20190720-WA0000.jpg
-├── IMG-20190720-WA0010.jpg
-└── IMG_20190719_153829.jpg
+├── Església St Pere de Rubí 150301_2014.JPG
+├── a_file.txt
+└── document.doc
 ```
 
-Output
+Run the multimedia tool organizer command
 
 ```shell
-python reorganize.py --source ~/Desktop/test2/ --destination ~/Desktop/out/
+python reorganize.py --source ~/Desktop/test/ --destination ~/Desktop/output/
+
 [+] Start Processing
+ |- Searching files... OK
 
 ------------------------
   Files Report
 ------------------------
  Extensions to be processed : ('.gif', '.png', '.jpg', '.jpeg', '.mov', '.mp4')
- Files found : 4 / 4
+ Files found : 1 / 3
 
- Missing files   : 0 / 0
- Missed files have the following extensions: -
+ Missing files   : 2 / 3
+ Missed files have the following extensions: {'.doc', '.txt'}
 
 Do you want to continue? yes/no > yes
+[+] Reading files
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 35.23files/s]
+[+] Creating directories
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 2126.93directory/s]
+[+] Copying files
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 158.72file/s]
 [+] All files were moved successfully!
- 
-~/Desktop/out > tree
+```
+
+Output directory result
+```shell
+ ~/Desktop/output  tree                                                                                                                                 ok | 15:47:55
 .
-├── 2019-07-19
-│   └── pixel3a
-│       └── IMG_20190719_153829.jpg
-├── 2019-07-20
-│   ├── IMG-20190720-WA0000.jpg
-│   └── IMG-20190720-WA0010.jpg
-└── 2019-12-14
-    └── nikond5200
-        └── 48e9a3cb-454c-4b57-b17b-a8751ac12938_Original.jpg
+└── 2024-06-14
+    └── stylus1
+        └── església st pere de rubí 150301_2014.jpg
 ```
 
 ## Getting Started
@@ -72,6 +112,21 @@ Install the project dependencies
 pyenv virtualenv 3.8.6 image
 pyenv local image
 pip install -r requirements.txt
+```
+
+To be sure that everything is working as expected you can run the tests
+```shell
+pytest                                                                           ok | image 3.8.6 py | 15:40:20
+========================================================================= test session starts =========================================================================
+platform darwin -- Python 3.8.6, pytest-6.2.5, py-1.11.0, pluggy-1.5.0
+rootdir: /Users/eballo/Documents/work/python/file-organizer
+collected 9 items
+
+tests/test_organizer.py .....                                                                                                                                   [ 55%]
+tests/test_process.py ....                                                                                                                                      [100%]
+
+========================================================================== 9 passed in 0.21s ==========================================================================
+
 ```
 
 ### Run
@@ -165,6 +220,17 @@ $image-organizer/tests/python -m pytest tests
     * Fix when source os separator missing, recursive not working
     * Add Debug parameter, Info by default
     * Add Missing files format summary (Debug)
+  
+* 3.0
+    * Add Progress Bar (@omotto contribution)
+    * Add Win32 support (@omotto contribution)
+    * Refactor code to have Win32 configuration in a separate class
+    * Add Tests
+    * Add Pull Request Template
+    * Add github actions build + tests + sonar
+    * Improve Tool Help
+    * Improve Readme
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
