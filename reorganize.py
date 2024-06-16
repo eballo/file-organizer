@@ -3,6 +3,7 @@ import logging
 import platform
 import os
 import sys
+import textwrap
 from typing import Tuple, Union, Any
 
 from src.organizer import FileOrganizer, FileOrganizerWin32
@@ -10,14 +11,34 @@ from src.utils import do_you_want_to_continue
 
 
 def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
-    parser = argparse.ArgumentParser(description='Image Organizer')
-    parser.add_argument('--source', metavar='source', type=str, help='the path where the images are located')
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     description=textwrap.dedent('''\
+    [ Multimedia Organizer Tool ]
+
+    The Multimedia Organizer Tool is designed to streamline and automate the organization of multimedia files within 
+    a specified folder. This powerful utility processes all files in a given source directory, identifies their 
+    modification dates, and systematically sorts them into subfolders within a designated destination directory. 
+    Each subfolder is named according to the date format YYYY-MM-DD, corresponding to the modification date of the 
+    files it contains. This tool ensures that all media files are neatly organized by date, making it easier to manage 
+    and locate them.
+    
+    Usage:
+
+    1) Specify the source directory containing the multimedia files.
+    2) Choose the destination directory where the organized files will be stored.
+    3) The tool will automatically scan the source directory, determine the modification date of each file, and 
+    move or copy the files to the appropriate date-based subfolder in the destination directory.
+
+
+    '''))
+    parser.add_argument('--source', metavar='source', type=str,
+                        help='the path where the images are located', required=True)
     parser.add_argument('--destination', metavar='destination', type=str,
-                        help='the destination path where the images will be ordered')
+                        help='the destination path where the images will be ordered',  required=True)
     parser.add_argument('--extensions', metavar='extensions', type=str,
                         help='the filter extensions coma separated. Default extensions: gif, png, jpg, jpeg, mov, mp4')
-    parser.add_argument('--debug', help='enables debug log', action="store_const", dest="loglevel", const=logging.DEBUG,
-                        default=logging.INFO)
+    parser.add_argument('--debug', help='enables debug log',
+                        action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     args = parser.parse_args()
     init_logger(args.loglevel)
