@@ -23,7 +23,6 @@ class FileOrganizer:
     def get_files(self, source: str, extensions: Tuple[str]) -> List[List[str]]:
         all_files, processed_files = self._filter_files(source, extensions)
         missing_files = [x for x in all_files if x not in processed_files]
-
         return [all_files, processed_files, missing_files]
 
     def _filter_files(self, source: str, extensions: Tuple[str]) -> Tuple[List[str], List[str]]:
