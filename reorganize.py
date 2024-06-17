@@ -47,8 +47,6 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
     is_mtp: bool = False
     app_source = args.source
     if app_source:
-        if not app_source.endswith(os.path.sep):
-            app_source = args.source + os.path.sep
         if not os.path.isdir(app_source):
             logging.warning('[-] The source path specified does not exist')
             sys.exit()
@@ -83,8 +81,6 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
 
     app_destination = args.destination
     if app_destination:
-        if not app_destination.endswith(os.path.sep):
-            app_destination = app_destination + os.path.sep
         if os.path.isdir(app_destination):
             logging.warning("[-] The destination path specified already exist")
             do_you_want_to_continue()

@@ -20,6 +20,31 @@ class FileOrganizer:
     def get_file_processor():
         return FileProcessor()
 
+    def start(self):
+        if self.source and self.destination:
+            self.validate_data_input()
+            logging.info("[+] Start Processing")
+            files = self.get_files(self.source, self.extensions)
+            all_files = files[0]
+            list_of_files_to_be_processed = files[1]
+            missing = files[2]
+            if list_of_files_to_be_processed:
+                self.reporting_summary(all_files, list_of_files_to_be_processed, missing)
+                do_you_want_to_continue()
+                self.file_process.process(list_of_files_to_be_processed, self.destination)
+            else:
+                logging.info("[-] No files found that matches the types")
+
+    def validate_data_input(self):
+        # Validates that the source and destination folder ends up with a os.path.separator
+        # if not we will add a separator
+
+        if not self.source.endswith(os.path.sep):
+            self.source = self.source + os.path.sep
+
+        if not self.destination.endswith(os.path.sep):
+            self.destination = self.destination + os.path.sep
+
     def get_files(self, source: str, extensions: Tuple[str]) -> List[List[str]]:
         all_files, processed_files = self._filter_files(source, extensions)
         missing_files = [x for x in all_files if x not in processed_files]
@@ -46,20 +71,6 @@ class FileOrganizer:
             if extension not in unique_extensions:
                 unique_extensions.add(extension)
         return unique_extensions
-
-    def start(self):
-        if self.source and self.destination:
-            logging.info("[+] Start Processing")
-            files = self.get_files(self.source, self.extensions)
-            all_files = files[0]
-            list_of_files_to_be_processed = files[1]
-            missing = files[2]
-            if list_of_files_to_be_processed:
-                self.reporting_summary(all_files, list_of_files_to_be_processed, missing)
-                do_you_want_to_continue()
-                self.file_process.process(list_of_files_to_be_processed, self.destination)
-            else:
-                logging.info("[-] No files found that matches the types")
 
     def reporting_summary(self, all_files, list_of_processed, missing):
         logging.info(" ")
