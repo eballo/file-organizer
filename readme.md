@@ -10,7 +10,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Python 3.8][python-shield]][python-url]
+[![Python 3.12][python-shield]][python-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -109,7 +109,7 @@ To get a local copy up and running follow these simple example steps.
 Install the project dependencies
 
 ```sh
-pyenv virtualenv 3.8.6 image
+pyenv virtualenv 3.12.1 image
 pyenv local image
 pip install -r requirements.txt
 ```
@@ -118,7 +118,7 @@ To be sure that everything is working as expected you can run the tests
 ```shell
 pytest                                                                           ok | image 3.8.6 py | 15:40:20
 ========================================================================= test session starts =========================================================================
-platform darwin -- Python 3.8.6, pytest-6.2.5, py-1.11.0, pluggy-1.5.0
+platform darwin -- Python 3.12.1, pytest-8.2.2, pluggy-1.5.0
 rootdir: /Users/eballo/Documents/work/python/file-organizer
 collected 9 items
 
@@ -128,68 +128,11 @@ tests/test_process.py ....                                                      
 ========================================================================== 9 passed in 0.21s ==========================================================================
 
 ```
-
-### Run
-```sh 
-python reorganize.py --help
-usage: reorganize.py [-h] [--source source] [--destination destination] [--types types]
-
-Image Organizer
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --source source       the path where the images are located
-  --destination destination
-                        the destination path where the images will be ordered
-  --types types         the filter types coma separated. Default types: gif, png, jpg, jpeg, mov, mp4
-```
-
-Sample with specific extensions
-```shell
-python reorganize.py --source ~/Desktop/Media --destination ~/Desktop/out/ --extensions opus,jpg,mp3
-[+] Start Processing
-
-------------------------
-  Files Report
-------------------------
- Extensions to be processed : ('.opus', '.jpg', '.mp3')
- Files found : 2735 / 3369
-
- Missing files   : 634 / 3369
- Missed files have the following extensions: {'.webp', '.pdf', '.aac', '.', '.jpeg', '.mp4', '.m4a'}
-
-Do you want to continue? yes/no > yes
-[+] All files were moved successfully!
-```
-Debug sample:
-```shell
-python reorganize.py --source ~/Desktop/Media --destination ~/Desktop/out/ --debug
-WARNING	 : [-] The destination path specified already exist
-Do you want to continue? yes/no > yes
-DEBUG	 : [+] Parameters: source= /Users/eballo/Desktop/Media/, destination= /Users/eballo/Desktop/out/, extennsions= None, debug= True
-DEBUG	 : [+] Starting
-INFO	 : [+] Start Processing
-INFO	 :
-INFO	 : ------------------------
-INFO	 :   Files Report
-INFO	 : ------------------------
-INFO	 :  Extensions to be processed : ('.gif', '.png', '.jpg', '.jpeg', '.mov', '.mp4')
-INFO	 :  Files found : 1935 / 3369
-INFO	 :
-INFO	 :  Missing files   : 1434 / 3369
-INFO	 :  Missed files have the following extensions: {'.', '.aac', '.pdf', '.m4a', '.webp', '.mp3', '.opus'}
-INFO	 :
-Do you want to continue? yes/no > yes
-INFO	 : [-] Output directory already exists
-INFO	 : [+] All files were moved successfully!
-DEBUG	 : [+] Finish
-```
-
-
+## Developer
 ### Pre-commit hooks
 
-Please run  `pre-commit install` just once to install the git hooks that allow
-that allow to preform some checks before commiting. That will save us resouces and time
+Please run  `pre-commit install` just once to install the git hooks that allow to preform some checks before commiting. 
+That will save us resources and time
 
 The pre-commit checks that we run are:
 
@@ -203,42 +146,13 @@ From inside the test directory
 $image-organizer/tests/python -m pytest tests
 ```
 
-## Release History
-
-* 1.0
-    * Create directories
-    * add exif model information if any
-    * copy in parallel 10 threads
-
-* 2.0
-    * code refactor
-    * update readme
-    * add tests
-    * Fix bug capitalized extensions
-    * Fix EXIF information issue (omotto)
-    * Add Logging
-    * Fix when source os separator missing, recursive not working
-    * Add Debug parameter, Info by default
-    * Add Missing files format summary (Debug)
-  
-* 3.0
-    * Add Progress Bar (@omotto contribution)
-    * Add Win32 support (@omotto contribution)
-    * Refactor code to have Win32 configuration in a separate class
-    * Add Tests
-    * Add Pull Request Template
-    * Add github actions build + tests + sonar
-    * Improve Tool Help
-    * Improve Readme
-
-* 4.0
-    * Fix destination parameter when there is no separator
-
+## Releases 
+[Release History](releases.md)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[python-shield]: https://img.shields.io/badge/python-3.8-blue.svg
-[python-url]: https://www.python.org/downloads/release/python-370/
+[python-shield]: https://img.shields.io/badge/python-3.12-blue.svg
+[python-url]: https://www.python.org/downloads/release/python-3124/
 [contributors-shield]: https://img.shields.io/github/contributors/eballo/file-organizer.svg?style=flat-square
 [contributors-url]: https://github.com/eballo/file-organizer/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/eballo/file-organizer.svg?style=flat-square
