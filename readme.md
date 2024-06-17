@@ -231,6 +231,9 @@ $image-organizer/tests/python -m pytest tests
     * Improve Tool Help
     * Improve Readme
 
+* 4.0
+    * Fix destination parameter when there is no separator
+
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

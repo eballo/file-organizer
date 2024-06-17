@@ -47,8 +47,6 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
     is_mtp: bool = False
     app_source = args.source
     if app_source:
-        if not app_source.endswith(os.path.sep):
-            app_source = args.source + os.path.sep
         if not os.path.isdir(app_source):
             logging.warning('[-] The source path specified does not exist')
             sys.exit()
@@ -81,8 +79,9 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
             logging.warning('[-] The "source" parameter is mandatory')
             sys.exit()
 
-    if args.destination:
-        if os.path.isdir(args.destination):
+    app_destination = args.destination
+    if app_destination:
+        if os.path.isdir(app_destination):
             logging.warning("[-] The destination path specified already exist")
             do_you_want_to_continue()
     else:
@@ -98,7 +97,7 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
     if args.loglevel:
         app_debug = True
 
-    return is_mtp, app_source, args.destination, extensions, app_debug
+    return is_mtp, app_source, app_destination, extensions, app_debug
 
 
 def init_logger(level):
@@ -122,7 +121,7 @@ if __name__ == '__main__':
 
     try:
         init_logger(debug)
-        logging.debug("[+] Parameters: source= %s, destination= %s, extennsions= %s, debug= %s", source, destination,
+        logging.debug("[+] Parameters: source= %s, destination= %s, extensions= %s, debug= %s", source, destination,
                       extensions, debug)
         image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
         logging.debug("[+] Starting")

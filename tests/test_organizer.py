@@ -1,6 +1,6 @@
 import os
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from src.constants import DEFAULT_EXTENSION
 from src.organizer import FileOrganizer
@@ -14,6 +14,17 @@ class FileOrganizerTest(unittest.TestCase):
         self.destination = os.path.abspath('tests/fixtures/destination/')
         self.extensions = DEFAULT_EXTENSION
         self.organizer = FileOrganizer(self.source, self.destination, self.extensions)
+
+    def test_validate_data_input(self):
+        simp_path = 'tests/fixtures/test'
+        source = os.path.abspath(simp_path)
+        destination = os.path.abspath('tests/fixtures/destination')
+        organizer = FileOrganizer(source, destination, DEFAULT_EXTENSION)
+
+        organizer.validate_data_input()
+
+        assert organizer.source == os.path.abspath("tests/fixtures/test") + os.path.sep
+        assert organizer.destination == os.path.abspath("tests/fixtures/destination/") + os.path.sep
 
     @patch('src.organizer.glob.iglob')
     def test_get_files_local(self, mock_iglob):
@@ -29,6 +40,19 @@ class FileOrganizerTest(unittest.TestCase):
         self.assertEqual(len(files[1]), 1)  # processed files
         self.assertEqual(len(files[2]), 2)  # missing files
 
+    @patch('src.organizer.glob.iglob')
+    def test_filter_files(self, mock_iglob):
+        mock_iglob.return_value = [
+            os.path.join(self.source, 'file1.txt'),
+            os.path.join(self.source, 'file2.mp3'),
+            os.path.join(self.source, 'file3.jpg')
+        ]
+
+        all_files, processed_files = self.organizer._filter_files(self.source, self.extensions)
+
+        self.assertEqual(len(all_files), 3)  # all files
+        self.assertEqual(len(processed_files), 1)  # processed files
+
     def test_get_unique_extensions(self):
         files = [
             'test1.txt', 'test2.mp3', 'test3.docx', 'test4.txt'
@@ -43,7 +67,7 @@ class FileOrganizerTest(unittest.TestCase):
     @patch('src.organizer.FileProcessor.process')
     @patch('src.organizer.do_you_want_to_continue')
     @patch('src.organizer.FileOrganizer.get_files')
-    def test_start(self, mock_get_files, mock_do_you_want_to_continue, mock_process):
+    def test_start_with_files(self, mock_get_files, mock_do_you_want_to_continue, mock_process):
         mock_get_files.return_value = (
             ['file1.txt', 'file2.mp3', 'file3.docx'],
             ['file1.txt'],
@@ -54,8 +78,18 @@ class FileOrganizerTest(unittest.TestCase):
         self.organizer.start()
 
         mock_get_files.assert_called_once()
-        mock_process.assert_called_once_with(['file1.txt'], self.destination)
+        mock_process.assert_called_once_with(['file1.txt'], self.destination + os.path.sep)
         mock_do_you_want_to_continue.assert_called_once()
+
+    @patch('src.organizer.FileOrganizer.get_files')
+    @patch('src.organizer.logging.info')
+    def test_start_with_no_files(self, mock_logging_info, mock_get_files):
+        mock_get_files.return_value = ([], [], [])
+
+        self.organizer.start()
+
+        mock_get_files.assert_called_once()
+        mock_logging_info.assert_called_with("[-] No files found that matches the types")
 
     @patch('src.organizer.logging.info')
     def test_reporting_summary(self, mock_logging_info):
@@ -79,12 +113,3 @@ class FileOrganizerTest(unittest.TestCase):
         ]
         mock_logging_info.assert_has_calls(calls, any_order=True)
 
-    @patch('src.organizer.FileOrganizer.get_files')
-    @patch('src.organizer.logging.info')
-    def test_start_no_files(self, mock_logging_info, mock_get_files):
-        mock_get_files.return_value = ([], [], [])
-
-        self.organizer.start()
-
-        mock_get_files.assert_called_once()
-        mock_logging_info.assert_called_with("[-] No files found that matches the types")
