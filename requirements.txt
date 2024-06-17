@@ -2,11 +2,11 @@ pillow==10.3.0
 argparse==1.4.0
 
 # development
-pytest==6.2.5
-black==19.10b0
-flake8==3.7.0
-tqdm==4.62.3
-comtypes==1.1.10
+pytest==8.2.2
+black==24.4.2
+flake8==7.1.0
+tqdm==4.66.4
+comtypes==1.4.4
 coverage==7.5.3
 
 
