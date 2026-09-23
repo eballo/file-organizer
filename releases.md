@@ -30,3 +30,11 @@
     * Fix destination parameter when there is no separator
     * Update libraries to the latest
     * Update readme to use python 3.12.1
+
+* 5.0
+    * Update to Python 3.13
+    * Migrate dependency management to uv and pyproject.toml
+    * Update all project libraries and dependencies to their latest versions
+    * Update GitHub Actions workflow to use uv and Python 3.13
+    * Update documentation and setup guides for uv
+    * Remove obsolete requirements.txt and SonarCloud configuration

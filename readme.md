@@ -1,7 +1,5 @@
 # Multimedia Organizer Tool
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bluecodex_file-organizer&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=bluecodex_file-organizer)
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -10,7 +8,7 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-[![Python 3.12][python-shield]][python-url]
+[![Python 3.13][python-shield]][python-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -39,7 +37,7 @@ This tool ensures that all media files are neatly organized by date, making it e
 
 2) Run the tool:
     ```shell
-    python organize_media.py --source /path/to/source/directory --destination /path/to/destination/directory
+    uv run reorganize.py --source /path/to/source/directory --destination /path/to/destination/directory
     ```
 
     Replace `/path/to/source/directory` with the path to your source directory and `/path/to/destination/directory` with 
@@ -48,7 +46,7 @@ This tool ensures that all media files are neatly organized by date, making it e
 
 3) Example command:
     ```shell
-    python organize_media.py --source /home/user/photos --destination /home/user/organized_photos
+    uv run reorganize.py --source /home/user/photos --destination /home/user/organized_photos
     ```
     This command will process all multimedia files in `/home/user/photos`, identify their modification dates, and 
     organize them into date-based subfolders in `/home/user/organized_photos`.
@@ -106,33 +104,21 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 
-Install the project dependencies
+Install the project dependencies using [uv](https://docs.astral.sh/uv/):
 
 ```sh
-pyenv virtualenv 3.12.1 image
-pyenv local image
-pip install -r requirements.txt
+uv sync
 ```
 
-To be sure that everything is working as expected you can run the tests
+To be sure that everything is working as expected you can run the tests:
 ```shell
-pytest                                                                           ok | image 3.8.6 py | 15:40:20
-========================================================================= test session starts =========================================================================
-platform darwin -- Python 3.12.1, pytest-8.2.2, pluggy-1.5.0
-rootdir: /Users/eballo/Documents/work/python/file-organizer
-collected 9 items
-
-tests/test_organizer.py .....                                                                                                                                   [ 55%]
-tests/test_process.py ....                                                                                                                                      [100%]
-
-========================================================================== 9 passed in 0.21s ==========================================================================
-
+uv run pytest
 ```
 ## Developer
 ### Pre-commit hooks
 
-Please run  `pre-commit install` just once to install the git hooks that allow to preform some checks before commiting. 
-That will save us resources and time
+Please run `uv run pre-commit install` just once to install the git hooks that allow performing some checks before committing. 
+That will save us resources and time.
 
 The pre-commit checks that we run are:
 
@@ -141,9 +127,8 @@ The pre-commit checks that we run are:
  * correct JSON files
 
 ### Run the tests
-From inside the test directory
 ```shell
-$image-organizer/tests/python -m pytest tests
+uv run pytest
 ```
 
 ## Releases 
@@ -151,8 +136,8 @@ $image-organizer/tests/python -m pytest tests
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[python-shield]: https://img.shields.io/badge/python-3.12-blue.svg
-[python-url]: https://www.python.org/downloads/release/python-3124/
+[python-shield]: https://img.shields.io/badge/python-3.13-blue.svg
+[python-url]: https://www.python.org/downloads/release/python-3130/
 [contributors-shield]: https://img.shields.io/github/contributors/eballo/file-organizer.svg?style=flat-square
 [contributors-url]: https://github.com/eballo/file-organizer/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/eballo/file-organizer.svg?style=flat-square
