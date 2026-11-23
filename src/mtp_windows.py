@@ -45,13 +45,6 @@ WPD_RESOURCE_DEFAULT.contents.pid = 0
 
 class WindowsPortableDeviceContent:
     def __init__(self, objectID, content, properties=None, propertiesToRead=None):
-        global WPD_OBJECT_NAME, \
-            WPD_OBJECT_CONTENT_TYPE, \
-            WPD_OBJECT_ORIGINAL_FILE_NAME, \
-            WPD_OBJECT_SIZE, \
-            WPD_OBJECT_DATE_CREATED, \
-            WPD_OBJECT_DATE_MODIFIED
-
         self.objectID = objectID
         self.content = content
         self.name = None
@@ -151,7 +144,6 @@ class WindowsPortableDeviceContent:
             self.objectID, self.getName())
 
     def uploadStream(self, fileName, inputStream, streamLen):
-        global WPD_OBJECT_PARENT_ID, WPD_OBJECT_SIZE, WPD_OBJECT_ORIGINAL_FILE_NAME, WPD_OBJECT_NAME
         objectProperties = comtypes.client.CreateObject(types.PortableDeviceValues,
                                                         clsctx=comtypes.CLSCTX_INPROC_SERVER,
                                                         interface=port.IPortableDeviceValues)
@@ -186,7 +178,6 @@ class WindowsPortableDeviceContent:
         fileStream.Commit(STGC_DEFAULT)
 
     def downloadStream(self, outputStream):
-        global WPD_RESOURCE_DEFAULT
         resources = self.content.Transfer()
         STGM_READ = ctypes.c_uint(0)
         optimalTransferSizeBytes = ctypes.pointer(ctypes.c_ulong(0))
@@ -205,7 +196,6 @@ class WindowsPortableDeviceContent:
 
     def read_data(self, loops=0):
         buffer = bytearray()
-        global WPD_RESOURCE_DEFAULT
         resources = self.content.Transfer()
         STGM_READ = ctypes.c_uint(0)
         optimalTransferSizeBytes = ctypes.pointer(ctypes.c_ulong(0))
@@ -311,11 +301,6 @@ def get_sub_files(path):
         else:
             filenames.extend(get_sub_files(path + "/" + file.getName()))
     return filenames
-
-
-
-
-
 
 
 '''
