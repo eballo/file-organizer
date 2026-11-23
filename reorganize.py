@@ -48,7 +48,8 @@ def get_arguments() -> Options:
 
     '''))
     parser.add_argument('--source', metavar='source', type=str,
-                        help='the path where the images are located', required=True)
+                        help='the path where the images are located. On Windows, if it is omitted, you can pick a '
+                             'portable device (MTP), e.g. a phone')
     parser.add_argument('--destination', metavar='destination', type=str,
                         help='the destination path where the images will be ordered',  required=True)
     parser.add_argument('--extensions', metavar='extensions', type=str,
@@ -110,8 +111,7 @@ def get_arguments() -> Options:
                 logging.warning('[-] MTP devices not found')
                 sys.exit()
         else:
-            logging.warning('[-] The "source" parameter is mandatory')
-            sys.exit()
+            parser.error('the "--source" parameter is mandatory')
 
     app_destination = args.destination
     if app_destination:

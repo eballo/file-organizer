@@ -41,11 +41,14 @@ class FileOrganizer:
         # Validates that the source and destination folder ends up with a os.path.separator
         # if not we will add a separator
 
-        if not self.source.endswith(os.path.sep):
-            self.source = self.source + os.path.sep
+        self.source = self._normalise_source(self.source)
 
         if not self.destination.endswith(os.path.sep):
             self.destination = self.destination + os.path.sep
+
+    @staticmethod
+    def _normalise_source(source: str) -> str:
+        return source if source.endswith(os.path.sep) else source + os.path.sep
 
     def get_files(self, source: str, extensions: Tuple[str]) -> List[List[str]]:
         all_files, processed_files = self._filter_files(source, extensions)
@@ -95,6 +98,11 @@ class FileOrganizer:
 
 
 class FileOrganizerWin32(FileOrganizer):
+    """The source is a path inside a portable device ('Phone/DCIM'), not a folder of this file system."""
+
+    @staticmethod
+    def _normalise_source(source: str) -> str:
+        return source.rstrip("/\\")
 
     @staticmethod
     def get_file_processor():
