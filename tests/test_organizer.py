@@ -122,4 +122,3 @@ class FileOrganizerTest(unittest.TestCase):
             unittest.mock.call(" ")
         ]
         mock_logging_info.assert_has_calls(calls, any_order=True)
-

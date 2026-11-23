@@ -31,18 +31,18 @@ def get_arguments() -> Options:
                                      description=textwrap.dedent('''\
     [ Multimedia Organizer Tool ]
 
-    The Multimedia Organizer Tool is designed to streamline and automate the organization of multimedia files within 
-    a specified folder. This powerful utility processes all files in a given source directory, identifies their 
-    capture dates, and systematically sorts them into subfolders within a designated destination directory. 
-    Each subfolder is named according to the date format YYYY-MM-DD, corresponding to the capture date of the 
-    files it contains. This tool ensures that all media files are neatly organized by date, making it easier to manage 
+    The Multimedia Organizer Tool is designed to streamline and automate the organization of multimedia files within
+    a specified folder. This powerful utility processes all files in a given source directory, identifies their
+    capture dates, and systematically sorts them into subfolders within a designated destination directory.
+    Each subfolder is named according to the date format YYYY-MM-DD, corresponding to the capture date of the
+    files it contains. This tool ensures that all media files are neatly organized by date, making it easier to manage
     and locate them.
-    
+
     Usage:
 
     1) Specify the source directory containing the multimedia files.
     2) Choose the destination directory where the organized files will be stored.
-    3) The tool will automatically scan the source directory, determine the capture date of each file, and 
+    3) The tool will automatically scan the source directory, determine the capture date of each file, and
     copy the files to the appropriate date-based subfolder in the destination directory.
 
 
@@ -51,7 +51,7 @@ def get_arguments() -> Options:
                         help='the path where the images are located. On Windows, if it is omitted, you can pick a '
                              'portable device (MTP), e.g. a phone')
     parser.add_argument('--destination', metavar='destination', type=str,
-                        help='the destination path where the images will be ordered',  required=True)
+                        help='the destination path where the images will be ordered', required=True)
     parser.add_argument('--extensions', metavar='extensions', type=str,
                         help='the filter extensions coma separated. Default extensions: gif, png, jpg, jpeg, mov, mp4')
     parser.add_argument('--folder-template', metavar='template', type=str, default=FolderTemplate.DEFAULT,
