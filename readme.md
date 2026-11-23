@@ -14,19 +14,25 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 
-The Multimedia Organizer Tool is designed to streamline and automate the organization of multimedia files within a 
-specified folder. This powerful utility processes all files in a given source directory, identifies their modification 
-dates, and systematically sorts them into subfolders within a designated destination directory. Each subfolder is named 
-according to the date format YYYY-MM-DD, corresponding to the modification date of the files it contains. 
+The Multimedia Organizer Tool processes all files in a source directory and copies them into a destination
+directory, grouped by the day they were taken and by the camera that took them:
 
-This tool ensures that all media files are neatly organized by date, making it easier to manage and locate them.
+```
+destination/2015-03-01/olympus_stylus1/photo.jpg
+```
 
 ### Key Features:
 
-* Automatic Sorting: Efficiently processes and sorts multimedia files by their modification date.
-* Date-Based Folders: Creates subfolders in the destination directory named after the modification date in YYYY-MM-DD format.
-* Comprehensive File Support: Supports a wide range of multimedia files, including images, videos, and audio files.
-* User-Friendly: Simple and easy to use, with minimal setup required.
+* Capture date: read from the EXIF data (`DateTimeOriginal`, then `DateTimeDigitized`, then `DateTime`). Videos use
+  the container creation date. If nothing is found, the file modification date is used.
+* Camera folder: `make_model` from the EXIF data, lowercase and safe as a folder name (`Canon EOS 60D` -> `canoneos60d`).
+  Files without camera information go directly in the date folder.
+* Formats: gif, png, jpg, jpeg, heic, heif, webp, tif, tiff, mov, mp4, m4v, avi, 3gp, opus. Use `--extensions` to change them.
+* Videos need [`ffprobe`](https://ffmpeg.org/) (part of FFmpeg) in the `PATH` to read their date and camera.
+  Without it the modification date is used.
+* Safe: files are copied, never moved, and nothing is overwritten. Output names are always lowercase. If two different
+  files end up with the same name the second one gets a suffix (`img_1.jpg`); identical files are skipped.
+* Final report with copied, renamed, duplicated and failed files. The exit code is 1 if any file failed.
 
 ## Usage:
 
@@ -48,7 +54,7 @@ This tool ensures that all media files are neatly organized by date, making it e
     ```shell
     uv run reorganize.py --source /home/user/photos --destination /home/user/organized_photos
     ```
-    This command will process all multimedia files in `/home/user/photos`, identify their modification dates, and 
+    This command will process all multimedia files in `/home/user/photos`, identify their dates, and 
     organize them into date-based subfolders in `/home/user/organized_photos`.
 
 ### Example:
@@ -93,8 +99,8 @@ Output directory result
 ```shell
  ~/Desktop/output  tree                                                                                                                                 ok | 15:47:55
 .
-└── 2024-06-14
-    └── stylus1
+└── 2015-03-01
+    └── olympus_stylus1
         └── església st pere de rubí 150301_2014.jpg
 ```
 

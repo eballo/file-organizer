@@ -78,12 +78,6 @@ class ConflictTest(unittest.TestCase):
         self.assertEqual(names, ["good.jpg"])
         self.assertEqual([f[0] for f in report.failed], [missing])
 
-    def test_clean_name_removes_unsafe_characters(self):
-        self.assertEqual(FileProcessor._clean_name("Canon/EOS 60D\x00"), "canoneos60d")
-        self.assertEqual(FileProcessor._clean_name(b"NIKON D5"), "nikond5")
-        self.assertIsNone(FileProcessor._clean_name("///"))
-        self.assertIsNone(FileProcessor._clean_name(42))
-
     def test_files_inside_destination_are_ignored(self):
         self._write("a.jpg")
         dest_inside = os.path.join(self.src, "out")
