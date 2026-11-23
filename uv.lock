@@ -173,7 +173,7 @@ wheels = [
 [[package]]
 name = "file-organizer"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "comtypes", marker = "sys_platform == 'win32'" },
     { name = "pillow" },
