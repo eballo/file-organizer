@@ -1,7 +1,10 @@
 import os
 import unittest
-from unittest.mock import patch, PropertyMock, Mock
+from unittest.mock import patch, Mock
 
+from datetime import datetime
+
+from src.metadata import Metadata
 from src.process import FileProcessor
 
 
@@ -29,16 +32,22 @@ class ProcessTest(unittest.TestCase):
             self.processor.create_destination(self.destination)
             mock_mkdir.assert_not_called()
 
-    @patch("src.process.FileProcessor.get_exif")
-    @patch("src.process.FileProcessor.get_data")
-    def test_modification_date(self, mock_get_data, mock_get_exif):
-        mock_get_exif.return_value = Mock()
-        mock_get_data.return_value = "canon60d"
-        with patch("os.path.getmtime") as mock_getmtime:
-            mock_getmtime.return_value = 1609459200  # Jan 1, 2021
-            date, model = self.processor.modification_date("image.jpg")
-            self.assertEqual(date, "2021-01-01")
-            self.assertEqual(model, "canon60d")
+    def test_modification_date_prefers_capture_date(self):
+        with patch.object(self.processor, "_read_metadata", return_value=Metadata(datetime(2020, 5, 17, 23, 59), "canon60d")):
+            self.assertEqual(self.processor.modification_date("image.jpg"), ("2020-05-17", "canon60d"))
+
+    def test_modification_date_falls_back_to_mtime(self):
+        with patch.object(self.processor, "_read_metadata", return_value=Metadata()):
+            with patch("os.path.getmtime", return_value=1609459200):  # 2021-01-01 00:00 UTC
+                date, model = self.processor.modification_date("image.jpg")
+        self.assertTrue(date.startswith("2020-12-3") or date.startswith("2021-01-0"))
+        self.assertIsNone(model)
+
+    def test_modification_date_is_cached(self):
+        with patch.object(self.processor, "_read_metadata", return_value=Metadata(datetime(2020, 1, 2), None)) as read:
+            self.processor.modification_date("a.jpg")
+            self.processor.modification_date("a.jpg")
+        read.assert_called_once()
 
     def test_process_in_parallel_reports_failures(self):
         self.processor.progress_bar_files = Mock()

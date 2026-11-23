@@ -1,7 +1,6 @@
 import filecmp
 import io
 import os
-import re
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -9,10 +8,11 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Set, Optional
 from shutil import copyfile
 from pathlib import Path
-from PIL import Image, ExifTags
-from PIL.Image import Exif
+from PIL import Image
 import logging
 from tqdm import tqdm
+
+from src.metadata import Metadata, exif_metadata, read_metadata
 
 COPIED = "copied"
 RENAMED = "renamed"
@@ -57,12 +57,14 @@ class FileProcessor:
     def __init__(self):
         self._lock = threading.Lock()
         self._reserved: Dict[str, str] = {}  # target path -> source that owns it in this run
+        self._dates: Dict[str, Tuple[str, Optional[str]]] = {}  # source -> (date folder, camera folder)
         self.progress_bar_reading = None
         self.progress_bar_directories = None
         self.progress_bar_files = None
 
     def process(self, images: List[str], destination: str) -> CopyReport:
         self._reserved = {}
+        self._dates = {}
         self.create_destination(destination)
         logging.info("[+] Reading files ")
         self.progress_bar_reading = tqdm(total=len(images), unit="files")
@@ -191,46 +193,17 @@ class FileProcessor:
             raise
         return status, other
 
-    def modification_date(self, file: str) -> Tuple[str, str]:
-        exif_raw, date = self._modify_date(file)
-        model = self.get_data(exif_raw, "Model")
-        date = str(date.year) + '-' + str(date.month).zfill(2) + '-' + str(date.day).zfill(2)
-        return date, model
+    def modification_date(self, file: str) -> Tuple[str, Optional[str]]:
+        """Returns (YYYY-MM-DD, camera folder or None). Cached: every file is read once per run."""
+        if file not in self._dates:
+            taken, camera = self._read_metadata(file)
+            date = taken or datetime.fromtimestamp(os.path.getmtime(file))
+            self._dates[file] = (date.strftime("%Y-%m-%d"), camera)
+        return self._dates[file]
 
-    def _modify_date(self, file):
-        t = os.path.getmtime(file)
-        date = datetime.fromtimestamp(t)
-        exif_raw = self.get_exif(file)
-        return exif_raw, date
-
-    @staticmethod
-    def get_exif(image: str) -> Optional[Exif]:
-        try:
-            with Image.open(image) as img:
-                return img.getexif()
-        except Exception as err:  # not an image, truncated, corrupt...
-            logging.debug("[-] No EXIF for %s: %s", image, err)
-            return None
-
-    @staticmethod
-    def get_data(exif_raw: Optional[Exif], field: str) -> Optional[str]:
-        model = None
-        if exif_raw:
-            for tag, value in exif_raw.items():
-                decoded_tag = ExifTags.TAGS.get(tag, tag)
-                if field == decoded_tag:
-                    model = FileProcessor._clean_name(value)
-        return model
-
-    @staticmethod
-    def _clean_name(value) -> Optional[str]:
-        """Lowercase and keep only characters that are safe in a folder name on every OS."""
-        if isinstance(value, bytes):
-            value = value.decode("utf-8", errors="ignore")
-        if not isinstance(value, str):
-            return None
-        cleaned = re.sub(r"[^\w.-]", "", value.replace(" ", "").lower()).strip(".")
-        return cleaned or None
+    def _read_metadata(self, file: str) -> Metadata:
+        """Capture date and camera from the file itself; empty fields fall back to the modification date."""
+        return read_metadata(file)
 
 
 class FileProcessorWin32(FileProcessor):
@@ -254,20 +227,14 @@ class FileProcessorWin32(FileProcessor):
         # Device files cannot be compared cheaply: a clash is always resolved by renaming
         return False
 
-    def _modify_date(self, file):
-        exif_raw = None
-        date = datetime.today()
+    def _read_metadata(self, file: str) -> Metadata:
         try:
             import src.mtp_windows
 
             cont = src.mtp_windows.get_content_from_device_path(file)
-            buffer = cont.read_data()
-            byte_imge_io = io.BytesIO(buffer)
-            byte_imge_io.seek(0)
-            byte_image = byte_imge_io.read()
-            img = Image.open(io.BytesIO(byte_image))
-            exif_raw = img.getexif()
-            date = cont.getDate()
+            with Image.open(io.BytesIO(cont.read_data())) as img:
+                found = exif_metadata(img.getexif())
+            return Metadata(found.date or cont.getDate(), found.camera)
         except Exception as e:
             logging.error(e)
-        return exif_raw, date
+            return Metadata(datetime.today(), None)
