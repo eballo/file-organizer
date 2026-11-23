@@ -12,7 +12,7 @@ from PIL import Image
 import logging
 from tqdm import tqdm
 
-from src.metadata import Metadata, exif_metadata, read_metadata
+from src.metadata import ExifParser, Metadata, MetadataExtractor
 
 COPIED = "copied"
 RENAMED = "renamed"
@@ -54,7 +54,8 @@ class CopyReport:
 
 class FileProcessor:
 
-    def __init__(self):
+    def __init__(self, extractor: Optional[MetadataExtractor] = None):
+        self.extractor = extractor or MetadataExtractor()
         self._lock = threading.Lock()
         self._reserved: Dict[str, str] = {}  # target path -> source that owns it in this run
         self._dates: Dict[str, Tuple[str, Optional[str]]] = {}  # source -> (date folder, camera folder)
@@ -203,7 +204,7 @@ class FileProcessor:
 
     def _read_metadata(self, file: str) -> Metadata:
         """Capture date and camera from the file itself; empty fields fall back to the modification date."""
-        return read_metadata(file)
+        return self.extractor.read(file)
 
 
 class FileProcessorWin32(FileProcessor):
@@ -233,7 +234,7 @@ class FileProcessorWin32(FileProcessor):
 
             cont = src.mtp_windows.get_content_from_device_path(file)
             with Image.open(io.BytesIO(cont.read_data())) as img:
-                found = exif_metadata(img.getexif())
+                found = ExifParser.parse(img.getexif())
             return Metadata(found.date or cont.getDate(), found.camera)
         except Exception as e:
             logging.error(e)
