@@ -4,13 +4,29 @@ import platform
 import os
 import sys
 import textwrap
-from typing import Tuple, Union, Any
+from dataclasses import dataclass
+from typing import Tuple, Union, Any, Optional
 
+from src.layout import FolderTemplate
 from src.organizer import FileOrganizer, FileOrganizerWin32
+from src.process import FileProcessor, FileProcessorWin32
 from src.utils import do_you_want_to_continue
 
 
-def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
+@dataclass
+class Options:
+    is_mtp: bool
+    source: str
+    destination: str
+    extensions: Optional[Tuple[Union[str, Any], ...]]
+    debug: bool
+    template: FolderTemplate
+    dry_run: bool = False
+    move: bool = False
+    skip_duplicates: bool = False
+
+
+def get_arguments() -> Options:
     parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                                      description=textwrap.dedent('''\
     [ Multimedia Organizer Tool ]
@@ -37,11 +53,26 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
                         help='the destination path where the images will be ordered',  required=True)
     parser.add_argument('--extensions', metavar='extensions', type=str,
                         help='the filter extensions coma separated. Default extensions: gif, png, jpg, jpeg, mov, mp4')
+    parser.add_argument('--folder-template', metavar='template', type=str, default=FolderTemplate.DEFAULT,
+                        help='sub folders created in the destination. Fields: {year} {month} {day} {date} {camera}. '
+                             'Default: "%s". Example: "{year}/{month}/{camera}"' % FolderTemplate.DEFAULT)
+    parser.add_argument('--dry-run', action='store_true',
+                        help='shows what would be done (including renames and duplicates) without writing anything')
+    parser.add_argument('--move', action='store_true',
+                        help='moves the files instead of copying them: the source is only deleted after the copy '
+                             'has been verified')
+    parser.add_argument('--skip-duplicates', action='store_true',
+                        help='skips files whose content is identical to another file of this run, whatever their name')
     parser.add_argument('--debug', help='enables debug log',
                         action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 
     args = parser.parse_args()
     init_logger(args.loglevel)
+
+    try:
+        template = FolderTemplate(args.folder_template)
+    except ValueError as err:
+        parser.error(f'--folder-template: {err}')
 
     extensions: Tuple[Union[str, Any], ...] = None
     is_mtp: bool = False
@@ -81,7 +112,7 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
 
     app_destination = args.destination
     if app_destination:
-        if os.path.isdir(app_destination):
+        if os.path.isdir(app_destination) and not args.dry_run:
             logging.warning("[-] The destination path specified already exist")
             do_you_want_to_continue()
     else:
@@ -93,9 +124,11 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
         ext_list = ext.split(",")
         extensions = tuple(["." + t for t in ext_list])
 
-    app_debug = args.loglevel == logging.DEBUG
+    if is_mtp and args.move:
+        parser.error('--move is not supported for devices (MTP)')
 
-    return is_mtp, app_source, app_destination, extensions, app_debug
+    return Options(is_mtp, app_source, app_destination, extensions, args.loglevel == logging.DEBUG, template,
+                   args.dry_run, args.move, args.skip_duplicates)
 
 
 def init_logger(level):
@@ -107,25 +140,25 @@ def init_logger(level):
     logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
-def get_file_organizer(is_w32: bool, src: str, dest: str, ext: Tuple[Union[str, Any], ...]) -> FileOrganizer:
-    if is_w32:
-        return FileOrganizerWin32(src, dest, ext)
-    else:
-        return FileOrganizer(src, dest, ext)
+def get_file_organizer(options: Options) -> FileOrganizer:
+    processor_class, organizer_class = (FileProcessorWin32, FileOrganizerWin32) if options.is_mtp else (
+        FileProcessor, FileOrganizer)
+    processor = processor_class(template=options.template, dry_run=options.dry_run, move=options.move,
+                                skip_duplicates=options.skip_duplicates)
+    return organizer_class(options.source, options.destination, options.extensions, processor)
 
 
 if __name__ == '__main__':
-    is_mtp, source, destination, extensions, debug = get_arguments()
+    opts = get_arguments()
 
     try:
-        logging.debug("[+] Parameters: source= %s, destination= %s, extensions= %s, debug= %s", source, destination,
-                      extensions, debug)
-        image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
+        logging.debug("[+] Parameters: %s", opts)
+        image_organizer = get_file_organizer(opts)
         logging.debug("[+] Starting")
         report = image_organizer.start()
         if report and report.failed:
             sys.exit(1)
     except Exception as err:
-        logging.error("[-] Something went really wrong: %s", err, exc_info=debug)
+        logging.error("[-] Something went really wrong: %s", err, exc_info=opts.debug)
         sys.exit(1)
     logging.debug("[+] Finish")

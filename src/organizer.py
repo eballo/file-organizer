@@ -1,6 +1,6 @@
 import glob
 import os
-from typing import Tuple, List, Union, Any, Set
+from typing import Tuple, List, Union, Any, Set, Optional
 
 from src.constants import DEFAULT_EXTENSION
 from src.process import FileProcessor, FileProcessorWin32
@@ -10,8 +10,9 @@ from src.utils import WaitingEffect, do_you_want_to_continue
 
 
 class FileOrganizer:
-    def __init__(self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...]):
-        self.file_process = self.get_file_processor()
+    def __init__(self, source: str, destination: str, extensions: Tuple[Union[str, Any], ...],
+                 processor: Optional[FileProcessor] = None):
+        self.file_process = processor or self.get_file_processor()
         self.source = source
         self.destination = destination
         self.extensions = extensions if extensions else DEFAULT_EXTENSION
@@ -30,7 +31,8 @@ class FileOrganizer:
             missing = files[2]
             if list_of_files_to_be_processed:
                 self.reporting_summary(all_files, list_of_files_to_be_processed, missing)
-                do_you_want_to_continue()
+                if not self.file_process.dry_run:
+                    do_you_want_to_continue()
                 return self.file_process.process(list_of_files_to_be_processed, self.destination)
             logging.info("[-] No files found that matches the types")
         return None
