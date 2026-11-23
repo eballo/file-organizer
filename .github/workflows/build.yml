@@ -19,6 +19,10 @@ jobs:
         run: uv python install 3.13
       - name: Install dependencies
         run: uv sync --all-groups
+      - name: Check the package builds and the command runs
+        run: |
+          uv build
+          uv run file-organizer --help > /dev/null
       - name: Test with pytest
         run: |
           uv run coverage run -m pytest

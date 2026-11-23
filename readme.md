@@ -44,16 +44,23 @@ destination/2015-03-01/olympus_stylus1/photo.jpg
 
 2) Run the tool:
     ```shell
-    uv run reorganize.py --source /path/to/source/directory --destination /path/to/destination/directory
+    uv run file-organizer --source /path/to/source/directory --destination /path/to/destination/directory
     ```
 
     Replace `/path/to/source/directory` with the path to your source directory and `/path/to/destination/directory` with 
-    the path to your destination directory.
+    the path to your destination directory. `uv run python reorganize.py ...` still works too.
+
+    To have the `file-organizer` command available everywhere, install it once as a tool:
+    ```shell
+    uv tool install git+https://github.com/eballo/file-organizer
+    file-organizer --source ... --destination ...
+    ```
+    (from a local clone: `uv tool install .`).
 
 
 3) Example command:
     ```shell
-    uv run reorganize.py --source /home/user/photos --destination /home/user/organized_photos
+    file-organizer --source /home/user/photos --destination /home/user/organized_photos
     ```
     This command will process all multimedia files in `/home/user/photos`, identify their dates, and 
     organize them into date-based subfolders in `/home/user/organized_photos`.
@@ -84,7 +91,7 @@ Given the source directory
 Run the multimedia tool organizer command
 
 ```shell
-python reorganize.py --source ~/Desktop/test/ --destination ~/Desktop/output/
+file-organizer --source ~/Desktop/test/ --destination ~/Desktop/output/
 
 [+] Start Processing
  |- Searching files... OK

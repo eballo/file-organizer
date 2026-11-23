@@ -151,7 +151,7 @@ def get_file_organizer(options: Options) -> FileOrganizer:
     return organizer_class(options.source, options.destination, options.extensions, processor)
 
 
-if __name__ == '__main__':
+def main() -> None:
     opts = get_arguments()
 
     try:
@@ -165,3 +165,7 @@ if __name__ == '__main__':
         logging.error("[-] Something went really wrong: %s", err, exc_info=opts.debug)
         sys.exit(1)
     logging.debug("[+] Finish")
+
+
+if __name__ == '__main__':
+    main()
