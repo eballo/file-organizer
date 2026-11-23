@@ -58,9 +58,12 @@ def get_arguments() -> Options:
                              'Default: "%s". Example: "{year}/{month}/{camera}"' % FolderTemplate.DEFAULT)
     parser.add_argument('--dry-run', action='store_true',
                         help='shows what would be done (including renames and duplicates) without writing anything')
-    parser.add_argument('--move', action='store_true',
-                        help='moves the files instead of copying them: the source is only deleted after the copy '
-                             'has been verified')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--copy', action='store_true',
+                      help='copies the files and leaves the source untouched (default)')
+    mode.add_argument('--move', action='store_true',
+                      help='moves the files instead of copying them: the source is only deleted after the copy '
+                           'has been verified')
     parser.add_argument('--skip-duplicates', action='store_true',
                         help='skips files whose content is identical to another file of this run, whatever their name')
     parser.add_argument('--debug', help='enables debug log',

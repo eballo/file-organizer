@@ -32,7 +32,7 @@ destination/2015-03-01/olympus_stylus1/photo.jpg
   Without it the modification date is used.
 * Safe: files are copied by default and nothing is overwritten. Output names are always lowercase. If two different
   files end up with the same name the second one gets a suffix (`img_1.jpg`); identical files are skipped.
-* Options: `--dry-run`, `--move`, `--folder-template` and `--skip-duplicates` (see below).
+* Options: `--dry-run`, `--copy`/`--move`, `--folder-template` and `--skip-duplicates` (see below).
 * Final report with copied, renamed, duplicated and failed files. The exit code is 1 if any file failed.
 
 ## Usage:
@@ -63,6 +63,7 @@ destination/2015-03-01/olympus_stylus1/photo.jpg
 | Option | What it does |
 |---|---|
 | `--dry-run` | Shows what would happen (copies, renames, duplicates) and writes nothing. No confirmation is asked. |
+| `--copy` | Copies the files and leaves the source untouched. This is the default; it cannot be combined with `--move`. |
 | `--move` | Moves instead of copying. The source is deleted only after the copy has been verified byte by byte; duplicates are left in the source. Not available for MTP devices. |
 | `--folder-template` | Sub folders of the destination. Fields: `{year}` `{month}` `{day}` `{date}` `{camera}`. Default `{date}/{camera}`. Example: `"{year}/{month}/{camera}"`. Empty parts (no camera) are dropped. |
 | `--skip-duplicates` | Skips files whose content is identical to another file of the same run, whatever their name. Files with the same name and the same content are always skipped. |
