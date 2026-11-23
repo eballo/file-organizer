@@ -43,9 +43,9 @@ class ProcessTest(unittest.TestCase):
     def test_process_in_parallel_reports_failures(self):
         self.processor.progress_bar_files = Mock()
         with patch.object(self.processor, "move_images", side_effect=OSError("boom")):
-            with self.assertLogs(level="ERROR") as logs:
-                self.processor.process_in_parallel(self.image_list, self.destination)
-        self.assertIn("Failed to copy", logs.output[0])
+            report = self.processor.process_in_parallel(self.image_list, self.destination)
+        self.assertEqual(report.failed, [(self.image_list[0], "boom")])
+        self.assertEqual(report.copied, 0)
 
     @patch("src.process.FileProcessor.process_in_parallel")
     def test_process(self, mock_process_in_parallel):

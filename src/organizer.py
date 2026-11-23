@@ -31,9 +31,9 @@ class FileOrganizer:
             if list_of_files_to_be_processed:
                 self.reporting_summary(all_files, list_of_files_to_be_processed, missing)
                 do_you_want_to_continue()
-                self.file_process.process(list_of_files_to_be_processed, self.destination)
-            else:
-                logging.info("[-] No files found that matches the types")
+                return self.file_process.process(list_of_files_to_be_processed, self.destination)
+            logging.info("[-] No files found that matches the types")
+        return None
 
     def validate_data_input(self):
         # Validates that the source and destination folder ends up with a os.path.separator
@@ -54,8 +54,12 @@ class FileOrganizer:
         all_files = []
         processed_files = []
         we = WaitingEffect(" |- Searching files...")
+        destination = os.path.realpath(self.destination) + os.path.sep
         for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
             we.run()
+            if (os.path.realpath(filename) + os.path.sep).startswith(destination):
+                logging.debug("[-] Ignoring %s: it is inside the destination", filename)
+                continue
             all_files.append(filename)
             base, ext = os.path.splitext(filename)
             if ext.lower() in extensions:

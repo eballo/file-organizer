@@ -122,7 +122,9 @@ if __name__ == '__main__':
                       extensions, debug)
         image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
         logging.debug("[+] Starting")
-        image_organizer.start()
+        report = image_organizer.start()
+        if report and report.failed:
+            sys.exit(1)
     except Exception as err:
         logging.error("[-] Something went really wrong: %s", err, exc_info=debug)
         sys.exit(1)
