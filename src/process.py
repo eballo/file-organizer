@@ -36,7 +36,7 @@ class FileProcessor:
     def create_destination(directory_name):
         try:
             if not os.path.isdir(directory_name):
-                os.mkdir(directory_name)
+                os.makedirs(directory_name)
             else:
                 logging.info("[-] Output directory already exists")
         except OSError:
@@ -62,10 +62,20 @@ class FileProcessor:
 
     def process_in_parallel(self, images: List[str], destination: str):
         args = [(image, destination) for image in images]
+        failed = []
         with ThreadPoolExecutor(max_workers=10) as executor:
-            executor.map(self.move_images, args)
+            futures = {executor.submit(self.move_images, a): a[0] for a in args}
+            for future, image in futures.items():
+                try:
+                    future.result()
+                except Exception as err:
+                    logging.error("[-] Failed to copy %s: %s", image, err)
+                    failed.append(image)
         self.progress_bar_files.close()
-        logging.info("[+] All files were moved successfully! ")
+        if failed:
+            logging.warning("[-] %d / %d files could not be copied", len(failed), len(images))
+        else:
+            logging.info("[+] All files were copied successfully! ")
 
     def move_images(self, args: List[Tuple[str, str]]):
         image, destination = args

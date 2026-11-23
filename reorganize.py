@@ -93,9 +93,7 @@ def get_arguments() -> Tuple[bool, str, str, Tuple[Union[str, Any], ...], bool]:
         ext_list = ext.split(",")
         extensions = tuple(["." + t for t in ext_list])
 
-    app_debug = False
-    if args.loglevel:
-        app_debug = True
+    app_debug = args.loglevel == logging.DEBUG
 
     return is_mtp, app_source, app_destination, extensions, app_debug
 
@@ -120,16 +118,12 @@ if __name__ == '__main__':
     is_mtp, source, destination, extensions, debug = get_arguments()
 
     try:
-        init_logger(debug)
         logging.debug("[+] Parameters: source= %s, destination= %s, extensions= %s, debug= %s", source, destination,
                       extensions, debug)
         image_organizer = get_file_organizer(is_mtp, source, destination, extensions)
         logging.debug("[+] Starting")
         image_organizer.start()
     except Exception as err:
-        if debug == logging.DEBUG:
-            error_msg = f"Unexpected {err=}, {type(err)=}"
-        else:
-            error_msg = "[-] Something went really wrong"
-        logging.error(error_msg)
+        logging.error("[-] Something went really wrong: %s", err, exc_info=debug)
+        sys.exit(1)
     logging.debug("[+] Finish")

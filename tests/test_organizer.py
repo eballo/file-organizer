@@ -53,6 +53,16 @@ class FileOrganizerTest(unittest.TestCase):
         self.assertEqual(len(all_files), 3)  # all files
         self.assertEqual(len(processed_files), 1)  # processed files
 
+    @patch('src.organizer.glob.iglob')
+    def test_filter_files_keeps_case(self, mock_iglob):
+        path = os.path.join(self.source, 'IMG_0001.JPG')
+        mock_iglob.return_value = [path]
+
+        all_files, processed_files = self.organizer._filter_files(self.source, self.extensions)
+
+        self.assertEqual(all_files, [path])
+        self.assertEqual(processed_files, [path])
+
     def test_get_unique_extensions(self):
         files = [
             'test1.txt', 'test2.mp3', 'test3.docx', 'test4.txt'

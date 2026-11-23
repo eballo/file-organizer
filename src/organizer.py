@@ -56,10 +56,10 @@ class FileOrganizer:
         we = WaitingEffect(" |- Searching files...")
         for filename in glob.iglob(source + "**" + os.path.sep + "*.*", recursive=True):
             we.run()
-            all_files.append(filename.lower())
+            all_files.append(filename)
             base, ext = os.path.splitext(filename)
             if ext.lower() in extensions:
-                processed_files.append(filename.lower())
+                processed_files.append(filename)
         we.run(end=True)
         return all_files, processed_files
 
