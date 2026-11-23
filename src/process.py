@@ -12,7 +12,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from src.layout import FolderTemplate
-from src.metadata import ExifParser, Metadata, MetadataExtractor
+from src.metadata import ExifParser, Metadata, MetadataExtractor, VideoMetadataReader
 from src.report import CopyReport
 from src.resolver import DUPLICATE, RENAMED, TargetResolver
 
@@ -203,13 +203,21 @@ class FileProcessorWin32(FileProcessor):
         return None  # no content based duplicate detection on devices
 
     def _read_metadata(self, file: str) -> Metadata:
-        try:
-            import src.mtp_windows
+        """EXIF from the file when it is an image, otherwise the date of the device. Today as a last resort."""
+        import src.mtp_windows
 
+        found = Metadata()
+        cont = None
+        try:
             cont = src.mtp_windows.get_content_from_device_path(file)
-            with Image.open(io.BytesIO(cont.read_data())) as img:
-                found = ExifParser.parse(img.getexif())
-            return Metadata(found.date or cont.getDate(), found.camera)
-        except Exception as e:
-            logging.error(e)
-            return Metadata(datetime.today(), None)
+            if os.path.splitext(file)[1].lower() not in VideoMetadataReader.EXTENSIONS:  # do not download videos
+                with Image.open(io.BytesIO(cont.read_data())) as img:
+                    found = ExifParser.parse(img.getexif())
+        except Exception as err:
+            logging.debug("[-] No EXIF for %s: %s", file, err)
+        device_date = None
+        try:
+            device_date = cont.getDate() if cont else None
+        except Exception as err:
+            logging.debug("[-] No device date for %s: %s", file, err)
+        return Metadata(found.date or device_date or datetime.today(), found.camera)
