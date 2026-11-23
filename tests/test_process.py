@@ -16,7 +16,7 @@ class ProcessTest(unittest.TestCase):
         self.destination = os.path.abspath("tests/fixtures/output/")
 
     @patch("os.path.isdir")
-    @patch("os.mkdir")
+    @patch("os.makedirs")
     def test_create_destination(self, mock_mkdir, mock_isdir):
         mock_isdir.return_value = False
         self.processor.create_destination(self.destination)
@@ -25,19 +25,27 @@ class ProcessTest(unittest.TestCase):
     @patch("os.path.isdir")
     def test_create_destination_exists(self, mock_isdir):
         mock_isdir.return_value = True
-        with patch("os.mkdir") as mock_mkdir:
+        with patch("os.makedirs") as mock_mkdir:
             self.processor.create_destination(self.destination)
             mock_mkdir.assert_not_called()
 
     @patch("src.process.FileProcessor.get_exif")
     @patch("src.process.FileProcessor.get_data")
-    def test_modification_date(self, mock_get_exif, mock_get_data):
+    def test_modification_date(self, mock_get_data, mock_get_exif):
         mock_get_exif.return_value = Mock()
-        mock_get_data.return_value = "Canon 60D"
+        mock_get_data.return_value = "canon60d"
         with patch("os.path.getmtime") as mock_getmtime:
             mock_getmtime.return_value = 1609459200  # Jan 1, 2021
             date, model = self.processor.modification_date("image.jpg")
             self.assertEqual(date, "2021-01-01")
+            self.assertEqual(model, "canon60d")
+
+    def test_process_in_parallel_reports_failures(self):
+        self.processor.progress_bar_files = Mock()
+        with patch.object(self.processor, "move_images", side_effect=OSError("boom")):
+            report = self.processor.process_in_parallel(self.image_list, self.destination)
+        self.assertEqual(report.failed, [(self.image_list[0], "boom")])
+        self.assertEqual(report.copied, 0)
 
     @patch("src.process.FileProcessor.process_in_parallel")
     def test_process(self, mock_process_in_parallel):
